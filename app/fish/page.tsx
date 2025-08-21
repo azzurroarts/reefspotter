@@ -18,7 +18,7 @@ export default function FishPage() {
   const [loadingUser, setLoadingUser] = useState(true)
   const router = useRouter()
 
-  // Get current logged-in user
+  // Step 1: Get the current logged-in user
   useEffect(() => {
     const fetchUser = async () => {
       const {
@@ -31,7 +31,7 @@ export default function FishPage() {
     fetchUser()
   }, [router])
 
-  // Fetch all species
+  // Step 2: Fetch all species from the database
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
@@ -40,7 +40,7 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
-  // Fetch unlocked species for current user
+  // Step 3: Fetch unlocked species for the current user
   useEffect(() => {
     if (!userId) return
     const fetchUnlocked = async () => {
@@ -50,6 +50,7 @@ export default function FishPage() {
     fetchUnlocked()
   }, [userId])
 
+  // Step 4: Toggle the unlock status when a species is clicked
   const toggleUnlock = async (speciesId: number) => {
     if (!userId) return
 
@@ -74,7 +75,7 @@ export default function FishPage() {
             <div
               key={fish.id}
               onClick={() => toggleUnlock(fish.id)}
-              className={`cursor-pointer bg-white border rounded p-4 flex flex-col items-center transition-all duration-300 ${isUnlocked ? 'bg-opacity-100 bg-pink-200' : 'bg-opacity-30'} max-w-xs h-[350px]`} // Card background color change
+              className={`cursor-pointer bg-white border rounded p-4 flex flex-col items-center transition-all duration-300 ${isUnlocked ? 'bg-pink-200' : 'bg-opacity-30'} max-w-xs h-[350px]`} // Card background color change
             >
               <div className="w-full h-[200px]"> {/* Fixed height for image */}
                 <img
@@ -85,7 +86,7 @@ export default function FishPage() {
               </div>
               <h2 className="font-bold text-center text-black mt-2">{fish.name}</h2>
               <p className="text-sm italic text-center text-black">{fish.scientific_name}</p>
-              {isUnlocked && <p className="text-xs text-center mt-2 text-black">{fish.description}</p>}
+              {isUnlocked && <p className="text-xs text-center mt-2 text-black">{fish.description}</p>} {/* Text appears only if unlocked */}
             </div>
           )
         })}
