@@ -74,12 +74,13 @@ export default function FishPage() {
             <div
               key={fish.id}
               onClick={() => toggleUnlock(fish.id)}
-              className={`cursor-pointer bg-white border rounded p-2 flex flex-col items-center transition-all duration-300 ${isUnlocked ? 'bg-opacity-100' : 'bg-opacity-30'}`}
+              className={`cursor-pointer bg-white border rounded p-2 flex flex-col items-center transition-all duration-300 ${isUnlocked ? 'bg-opacity-100' : 'bg-opacity-30'} max-w-sm`} // Set max width instead of height constraint
             >
               <img
                 src={fish.image_url}
                 alt={fish.name}
                 className={`w-full aspect-square object-cover mb-2 transition-transform duration-300 ${isUnlocked ? 'scale-100' : 'scale-90 grayscale'}`}
+                style={{ maxWidth: '100%', height: 'auto' }} // Ensure the image stays within the card bounds
               />
               <h2 className="font-bold text-center text-black">{fish.name}</h2>
               <p className="text-sm italic text-center text-black">{fish.scientific_name}</p>
