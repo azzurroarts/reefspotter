@@ -18,7 +18,7 @@ export default function FishPage() {
   const [loadingUser, setLoadingUser] = useState(true)
   const router = useRouter()
 
-  // Step 1: Get the current logged-in user
+  // Get current logged-in user
   useEffect(() => {
     const fetchUser = async () => {
       const {
@@ -31,7 +31,7 @@ export default function FishPage() {
     fetchUser()
   }, [router])
 
-  // Step 2: Fetch all species from the database
+  // Fetch all species
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
@@ -40,7 +40,7 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
-  // Step 3: Fetch unlocked species for the current user
+  // Fetch unlocked species for current user
   useEffect(() => {
     if (!userId) return
     const fetchUnlocked = async () => {
@@ -50,7 +50,6 @@ export default function FishPage() {
     fetchUnlocked()
   }, [userId])
 
-  // Step 4: Toggle the unlock status when a species is clicked
   const toggleUnlock = async (speciesId: number) => {
     if (!userId) return
 
@@ -75,18 +74,16 @@ export default function FishPage() {
             <div
               key={fish.id}
               onClick={() => toggleUnlock(fish.id)}
-              className={`cursor-pointer bg-white border rounded p-4 flex flex-col items-center transition-all duration-300 ${isUnlocked ? 'bg-pink-200' : 'bg-opacity-30'} max-w-xs h-[350px]`} // Card background color change
+              className={`cursor-pointer bg-white border rounded p-2 flex flex-col items-center transition-all duration-300 ${isUnlocked ? 'bg-opacity-100' : 'bg-opacity-30'}`}
             >
-              <div className="w-full h-[200px]"> {/* Fixed height for image */}
-                <img
-                  src={fish.image_url}
-                  alt={fish.name}
-                  className={`w-full h-full object-cover transition-all duration-300 ${isUnlocked ? 'scale-100' : 'scale-90 grayscale'}`} // Image color transition (grayscale to full color)
-                />
-              </div>
-              <h2 className="font-bold text-center text-black mt-2">{fish.name}</h2>
+              <img
+                src={fish.image_url}
+                alt={fish.name}
+                className={`w-full aspect-square object-cover mb-2 transition-all duration-300 ${isUnlocked ? 'grayscale-0' : 'grayscale'}`}
+              />
+              <h2 className="font-bold text-center text-black">{fish.name}</h2>
               <p className="text-sm italic text-center text-black">{fish.scientific_name}</p>
-              {isUnlocked && <p className="text-xs text-center mt-2 text-black">{fish.description}</p>} {/* Text appears only if unlocked */}
+              {isUnlocked && <p className="text-xs text-center mt-2 text-black">{fish.description}</p>}
             </div>
           )
         })}
