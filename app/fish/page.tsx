@@ -8,7 +8,6 @@ type Species = {
   name: string
   scientific_name: string
   image_url: string
-  description: string
 }
 
 export default function FishPage() {
@@ -93,12 +92,6 @@ export default function FishPage() {
                     alt={fish.name}
                     className={`w-full h-full object-cover transition-all duration-300 ${isUnlocked ? 'scale-100' : 'scale-90 grayscale'}`}
                   />
-                  {/* Description Overlay */}
-                  {isUnlocked && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-white text-black p-2 text-sm">
-                      {fish.description}
-                    </div>
-                  )}
                 </div>
                 {/* Name and Scientific Name */}
                 <h2 className="font-bold text-center text-black">{fish.name}</h2>
