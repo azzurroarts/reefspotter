@@ -90,7 +90,23 @@ export default function FishPage() {
               />
               <h2 className="font-bold text-center">{fish.name}</h2>
               <p className="text-sm italic text-center">{fish.scientific_name}</p>
-              {isUnlocked && <p className="text-xs text-center mt-2">{fish.description}</p>}
+
+              {isUnlocked && (
+                <div className="relative">
+                  {/* Info Icon */}
+                  <span
+                    className="cursor-pointer text-xl absolute top-2 right-2 text-blue-500"
+                    title="Click for description"
+                  >
+                    ℹ️
+                  </span>
+
+                  {/* Tooltip with description */}
+                  <div className="absolute top-0 left-0 w-full h-full bg-white bg-opacity-90 p-4 text-black rounded opacity-0 hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-xs text-center mt-2">{fish.description}</p>
+                  </div>
+                </div>
+              )}
             </div>
           )
         })}
