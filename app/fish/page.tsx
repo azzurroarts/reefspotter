@@ -16,8 +16,6 @@ export default function FishPage() {
   const [unlocked, setUnlocked] = useState<number[]>([])
   const [userId, setUserId] = useState<string | null>(null)
   const [loadingUser, setLoadingUser] = useState(true)
-  const [totalSpecies, setTotalSpecies] = useState(0)
-  const [scaleProgress, setScaleProgress] = useState(false) // For scaling the progress bar
   const router = useRouter()
 
   // Get current logged-in user
@@ -37,10 +35,7 @@ export default function FishPage() {
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
-      if (data) {
-        setSpecies(data)
-        setTotalSpecies(data.length)
-      }
+      if (data) setSpecies(data)
     }
     fetchSpecies()
   }, [])
@@ -64,30 +59,23 @@ export default function FishPage() {
     } else {
       await supabase.from('user_sightings').insert({ user_id: userId, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
-      setScaleProgress(true) // Trigger the scaling animation on card click
-      setTimeout(() => setScaleProgress(false), 300) // Reset after animation
     }
   }
-
-  const progress = (unlocked.length / totalSpecies) * 100
 
   if (loadingUser) return <p className="text-center mt-10 text-black">Loading user...</p>
 
   return (
     <div className="relative">
       {/* Progress Bar */}
-      <div
-        className={`fixed top-6 left-1/2 transform -translate-x-1/2 w-1/2 h-12 bg-gray-800 rounded-full border-2 border-black z-10 transition-transform duration-300 ${
-          scaleProgress ? 'scale-110' : 'scale-100'
-        }`}
-      >
+      <div className="fixed top-10 left-1/4 w-1/2 h-3 bg-gray-700 rounded-lg">
         <div
-          style={{ width: `${progress}%` }}
-          className="h-full bg-gradient-to-r from-pink-200 via-blue-200 to-yellow-200 rounded-full"
-        ></div>
+          className="h-full bg-gradient-to-r from-pink-300 to-indigo-400"
+          style={{ width: `${(unlocked.length / species.length) * 100}%` }}
+        />
       </div>
 
-      <div className="p-4 grid grid-cols-4 gap-4 mt-24">
+      {/* Species Cards */}
+      <div className="p-4 grid grid-cols-4 gap-4 mt-20">
         {species
           .sort((a, b) => a.name.localeCompare(b.name))
           .map(fish => {
@@ -96,30 +84,25 @@ export default function FishPage() {
               <div
                 key={fish.id}
                 onClick={() => toggleUnlock(fish.id)}
-                className={`cursor-pointer border rounded p-4 flex flex-col items-center transition-all duration-300
-                  ${isUnlocked ? 'bg-white' : 'bg-black'}
-                  ${isUnlocked ? 'text-black' : 'text-white'}
-                  ${isUnlocked ? 'scale-100' : 'scale-90'}
-                  relative
-                `}
+                className={`relative cursor-pointer bg-black border rounded-lg p-2 flex flex-col items-center transition-all duration-300 ${isUnlocked ? 'bg-white' : 'bg-opacity-30'}`}
               >
-                <img
-                  src={fish.image_url}
-                  alt={fish.name}
-                  className={`w-full aspect-square object-cover mb-2 transition-all duration-300 
-                    ${isUnlocked ? 'filter-none' : 'grayscale'}
-                    ${isUnlocked ? 'scale-100' : 'scale-90'}
-                  `}
-                />
-                <h2 className="font-bold text-center">{fish.name}</h2>
-                <p className="text-sm italic text-center">{fish.scientific_name}</p>
-
-                {/* Description Appearing at the Bottom of the Image */}
-                {isUnlocked && (
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-full bg-white text-black p-2 rounded-md">
-                    <p className="text-xs">{fish.description}</p>
-                  </div>
-                )}
+                <div className="relative w-full aspect-square">
+                  {/* Fish Image */}
+                  <img
+                    src={fish.image_url}
+                    alt={fish.name}
+                    className={`w-full h-full object-cover transition-all duration-300 ${isUnlocked ? 'scale-100' : 'scale-90 grayscale'}`}
+                  />
+                  {/* Description Overlay */}
+                  {isUnlocked && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-white text-black p-2 text-sm">
+                      {fish.description}
+                    </div>
+                  )}
+                </div>
+                {/* Name and Scientific Name */}
+                <h2 className="font-bold text-center text-black">{fish.name}</h2>
+                <p className="text-sm italic text-center text-black">{fish.scientific_name}</p>
               </div>
             )
           })}
