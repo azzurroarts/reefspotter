@@ -66,7 +66,7 @@ export default function FishPage() {
   return (
     <div className="relative">
       {/* Progress Bar */}
-      <div className="fixed top-10 left-1/4 w-1/2 h-3 bg-gray-700 rounded-lg">
+      <div className="fixed top-10 left-1/4 w-1/2 h-6 bg-gray-800 rounded-lg">
         <div
           className="h-full bg-gradient-to-r from-pink-300 to-indigo-400"
           style={{ width: `${(unlocked.length / species.length) * 100}%` }}
@@ -94,8 +94,8 @@ export default function FishPage() {
                   />
                 </div>
                 {/* Name and Scientific Name */}
-                <h2 className="font-bold text-center text-black">{fish.name}</h2>
-                <p className="text-sm italic text-center text-black">{fish.scientific_name}</p>
+                <h2 className="font-bold text-center text-white">{fish.name}</h2>
+                <p className="text-sm italic text-center text-white">{fish.scientific_name}</p>
               </div>
             )
           })}
