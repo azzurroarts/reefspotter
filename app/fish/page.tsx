@@ -73,16 +73,14 @@ export default function FishPage() {
   return (
     <div className="relative">
       {/* Progress Bar */}
-      <div className="absolute top-0 left-0 w-full">
-        <div className="w-full h-4 bg-gray-300 rounded-full border-2 border-black">
-          <div
-            style={{ width: `${progress}%` }}
-            className="h-full bg-gradient-to-r from-pink-200 via-blue-200 to-yellow-200 rounded-full"
-          ></div>
-        </div>
+      <div className="fixed top-0 left-1/2 transform -translate-x-1/2 w-2/3 h-8 bg-gray-300 rounded-full border-2 border-black z-10">
+        <div
+          style={{ width: `${progress}%` }}
+          className="h-full bg-gradient-to-r from-pink-200 via-blue-200 to-yellow-200 rounded-full"
+        ></div>
       </div>
 
-      <div className="p-4 grid grid-cols-4 gap-4 mt-12">
+      <div className="p-4 grid grid-cols-4 gap-4 mt-24">
         {species
           .sort((a, b) => a.name.localeCompare(b.name))
           .map(fish => {
@@ -95,6 +93,7 @@ export default function FishPage() {
                   ${isUnlocked ? 'bg-white' : 'bg-black'}
                   ${isUnlocked ? 'text-black' : 'text-white'}
                   ${isUnlocked ? 'scale-100' : 'scale-90'}
+                  relative
                 `}
               >
                 <img
@@ -108,20 +107,21 @@ export default function FishPage() {
                 <h2 className="font-bold text-center">{fish.name}</h2>
                 <p className="text-sm italic text-center">{fish.scientific_name}</p>
 
+                {/* Info Icon */}
                 {isUnlocked && (
-                  <div className="relative">
-                    {/* Info Icon */}
-                    <span
-                      className="cursor-pointer text-xl absolute top-2 right-2 text-blue-500"
-                      title="Click for description"
-                    >
-                      ℹ️
-                    </span>
+                  <span
+                    className="cursor-pointer text-xl absolute top-2 right-2 text-blue-500"
+                    title="Click for description"
+                    onClick={() => toggleUnlock(fish.id)}
+                  >
+                    ℹ️
+                  </span>
+                )}
 
-                    {/* Tooltip with description */}
-                    <div className="absolute top-0 left-0 w-full h-full bg-white bg-opacity-90 p-4 text-black rounded opacity-0 hover:opacity-100 transition-opacity duration-300">
-                      <p className="text-xs text-center mt-2">{fish.description}</p>
-                    </div>
+                {/* Tooltip with description */}
+                {isUnlocked && (
+                  <div className="absolute top-0 left-0 w-auto h-auto bg-white bg-opacity-90 p-2 text-black rounded-md opacity-0 hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-xs">{fish.description}</p>
                   </div>
                 )}
               </div>
