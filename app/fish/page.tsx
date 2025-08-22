@@ -8,6 +8,7 @@ type Species = {
   name: string
   scientific_name: string
   image_url: string
+  description: string
 }
 
 export default function FishPage() {
@@ -63,18 +64,21 @@ export default function FishPage() {
 
   if (loadingUser) return <p className="text-center mt-10 text-black">Loading user...</p>
 
+  // Calculate progress percentage
+  const progress = (unlocked.length / species.length) * 100
+
   return (
     <div className="relative">
       {/* Progress Bar */}
-      <div className="fixed top-10 left-1/4 w-1/2 h-6 bg-gray-800 rounded-lg">
+      <div className="fixed top-0 left-0 w-full h-6 bg-gray-800">
         <div
           className="h-full bg-gradient-to-r from-pink-300 to-indigo-400"
-          style={{ width: `${(unlocked.length / species.length) * 100}%` }}
+          style={{ width: `${progress}%` }}
         />
       </div>
 
       {/* Species Cards */}
-      <div className="p-4 grid grid-cols-4 gap-4 mt-20">
+      <div className="p-4 grid grid-cols-4 gap-4 mt-10">
         {species
           .sort((a, b) => a.name.localeCompare(b.name))
           .map(fish => {
@@ -83,19 +87,19 @@ export default function FishPage() {
               <div
                 key={fish.id}
                 onClick={() => toggleUnlock(fish.id)}
-                className={`relative cursor-pointer bg-black border rounded-lg p-2 flex flex-col items-center transition-all duration-300 ${isUnlocked ? 'bg-white' : 'bg-opacity-30'}`}
+                className={`cursor-pointer border rounded p-4 flex flex-col items-center transition-all duration-300
+                  ${isUnlocked ? 'bg-white' : 'bg-black'}
+                  ${isUnlocked ? 'text-black' : 'text-white'}
+                `}
               >
-                <div className="relative w-full aspect-square">
-                  {/* Fish Image */}
-                  <img
-                    src={fish.image_url}
-                    alt={fish.name}
-                    className={`w-full h-full object-cover transition-all duration-300 ${isUnlocked ? 'scale-100' : 'scale-90 grayscale'}`}
-                  />
-                </div>
-                {/* Name and Scientific Name */}
-                <h2 className="font-bold text-center text-white">{fish.name}</h2>
-                <p className="text-sm italic text-center text-white">{fish.scientific_name}</p>
+                <img
+                  src={fish.image_url}
+                  alt={fish.name}
+                  className={`w-full aspect-square object-cover mb-2 transition-all duration-300 
+                    ${isUnlocked ? 'filter-none' : 'grayscale'}`}
+                />
+                <h2 className="font-bold text-center">{fish.name}</h2>
+                <p className="text-sm italic text-center">{fish.scientific_name}</p>
               </div>
             )
           })}
