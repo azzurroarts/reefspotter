@@ -74,16 +74,23 @@ export default function FishPage() {
             <div
               key={fish.id}
               onClick={() => toggleUnlock(fish.id)}
-              className={`cursor-pointer bg-white border rounded p-2 flex flex-col items-center transition-all duration-300 ${isUnlocked ? 'bg-opacity-100' : 'bg-opacity-30'}`}
+              className={`cursor-pointer border rounded p-4 flex flex-col items-center transition-all duration-300
+                ${isUnlocked ? 'bg-white' : 'bg-black'}
+                ${isUnlocked ? 'text-black' : 'text-white'}
+                ${isUnlocked ? 'scale-100' : 'scale-90'}
+              `}
             >
               <img
                 src={fish.image_url}
                 alt={fish.name}
-                className={`w-full aspect-square object-cover mb-2 transition-all duration-300 ${isUnlocked ? 'grayscale-0' : 'grayscale'}`}
+                className={`w-full aspect-square object-cover mb-2 transition-all duration-300 
+                  ${isUnlocked ? 'filter-none' : 'grayscale'}
+                  ${isUnlocked ? 'scale-100' : 'scale-90'}
+                `}
               />
-              <h2 className="font-bold text-center text-black">{fish.name}</h2>
-              <p className="text-sm italic text-center text-black">{fish.scientific_name}</p>
-              {isUnlocked && <p className="text-xs text-center mt-2 text-black">{fish.description}</p>}
+              <h2 className="font-bold text-center">{fish.name}</h2>
+              <p className="text-sm italic text-center">{fish.scientific_name}</p>
+              {isUnlocked && <p className="text-xs text-center mt-2">{fish.description}</p>}
             </div>
           )
         })}
