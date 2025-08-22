@@ -1,5 +1,69 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase-browser'
+import { useRouter } from 'next/navigation'
+
+type Species = {
+  id: number
+  name: string
+  scientific_name: string
+  image_url: string
+  description: string
+}
+
 export default function FishPage() {
-  // [Existing code...]
+  const [species, setSpecies] = useState<Species[]>([])
+  const [unlocked, setUnlocked] = useState<number[]>([])
+  const [userId, setUserId] = useState<string | null>(null)
+  const [loadingUser, setLoadingUser] = useState(true)
+  const router = useRouter()
+
+  // Get current logged-in user
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user) setUserId(user.id)
+      else router.push('/login') // redirect if not logged in
+      setLoadingUser(false)
+    }
+    fetchUser()
+  }, [router])
+
+  // Fetch all species
+  useEffect(() => {
+    const fetchSpecies = async () => {
+      const { data } = await supabase.from('species').select('*')
+      if (data) setSpecies(data)
+    }
+    fetchSpecies()
+  }, [])
+
+  // Fetch unlocked species for current user
+  useEffect(() => {
+    if (!userId) return
+    const fetchUnlocked = async () => {
+      const { data } = await supabase.from('user_sightings').select('species_id').eq('user_id', userId)
+      if (data) setUnlocked(data.map(d => d.species_id))
+    }
+    fetchUnlocked()
+  }, [userId])
+
+  const toggleUnlock = async (speciesId: number) => {
+    if (!userId) return
+
+    if (unlocked.includes(speciesId)) {
+      await supabase.from('user_sightings').delete().eq('user_id', userId).eq('species_id', speciesId)
+      setUnlocked(unlocked.filter(id => id !== speciesId))
+    } else {
+      await supabase.from('user_sightings').insert({ user_id: userId, species_id: speciesId })
+      setUnlocked([...unlocked, speciesId])
+    }
+  }
+
+  if (loadingUser) return <p className="text-center mt-10 text-black">Loading user...</p>
 
   return (
     <div className="relative">
