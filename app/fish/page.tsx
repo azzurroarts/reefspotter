@@ -17,6 +17,7 @@ export default function FishPage() {
   const [userId, setUserId] = useState<string | null>(null)
   const [loadingUser, setLoadingUser] = useState(true)
   const [totalSpecies, setTotalSpecies] = useState(0)
+  const [scaleProgress, setScaleProgress] = useState(false) // For scaling the progress bar
   const router = useRouter()
 
   // Get current logged-in user
@@ -63,6 +64,8 @@ export default function FishPage() {
     } else {
       await supabase.from('user_sightings').insert({ user_id: userId, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
+      setScaleProgress(true) // Trigger the scaling animation on card click
+      setTimeout(() => setScaleProgress(false), 300) // Reset after animation
     }
   }
 
@@ -73,7 +76,11 @@ export default function FishPage() {
   return (
     <div className="relative">
       {/* Progress Bar */}
-      <div className="fixed top-0 left-1/2 transform -translate-x-1/2 w-2/3 h-8 bg-gray-300 rounded-full border-2 border-black z-10">
+      <div
+        className={`fixed top-6 left-1/2 transform -translate-x-1/2 w-1/2 h-12 bg-gray-800 rounded-full border-2 border-black z-10 transition-transform duration-300 ${
+          scaleProgress ? 'scale-110' : 'scale-100'
+        }`}
+      >
         <div
           style={{ width: `${progress}%` }}
           className="h-full bg-gradient-to-r from-pink-200 via-blue-200 to-yellow-200 rounded-full"
@@ -107,20 +114,9 @@ export default function FishPage() {
                 <h2 className="font-bold text-center">{fish.name}</h2>
                 <p className="text-sm italic text-center">{fish.scientific_name}</p>
 
-                {/* Info Icon */}
+                {/* Description Appearing at the Bottom of the Image */}
                 {isUnlocked && (
-                  <span
-                    className="cursor-pointer text-xl absolute top-2 right-2 text-blue-500"
-                    title="Click for description"
-                    onClick={() => toggleUnlock(fish.id)}
-                  >
-                    ℹ️
-                  </span>
-                )}
-
-                {/* Tooltip with description */}
-                {isUnlocked && (
-                  <div className="absolute top-0 left-0 w-auto h-auto bg-white bg-opacity-90 p-2 text-black rounded-md opacity-0 hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-full bg-white text-black p-2 rounded-md">
                     <p className="text-xs">{fish.description}</p>
                   </div>
                 )}
