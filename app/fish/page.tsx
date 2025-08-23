@@ -2,6 +2,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import Image from 'next/image'
 
 type Species = {
   id: number
@@ -16,28 +20,23 @@ export default function FishPage() {
   const [unlocked, setUnlocked] = useState<number[]>([])
   const [userId, setUserId] = useState<string | null>(null)
   const [loadingUser, setLoadingUser] = useState(true)
-  const [sidebarOpen, setSidebarOpen] = useState(false)  // Sidebar state
+  const [hasMore, setHasMore] = useState(true)
+  const [page, setPage] = useState(1)
+  const speciesPerPage = 20
   const router = useRouter()
 
   // Get current logged-in user
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (user) setUserId(user.id)
       else router.push('/login') // redirect if not logged in
       setLoadingUser(false)
     }
     fetchUser()
   }, [router])
-
-  // Fetch all species
-  useEffect(() => {
-    const fetchSpecies = async () => {
-      const { data } = await supabase.from('species').select('*')
-      if (data) setSpecies(data)
-    }
-    fetchSpecies()
-  }, [])
 
   // Fetch unlocked species for current user
   useEffect(() => {
@@ -49,6 +48,22 @@ export default function FishPage() {
     fetchUnlocked()
   }, [userId])
 
+  // Fetch species with pagination
+  const fetchMoreSpecies = async () => {
+    const { data } = await supabase
+      .from('species')
+      .select('*')
+      .range(page * speciesPerPage, (page + 1) * speciesPerPage - 1)
+
+    if (data) {
+      setSpecies(prev => [...prev, ...data])
+      setPage(prev => prev + 1)
+    }
+
+    if (data && data.length < speciesPerPage) setHasMore(false)
+  }
+
+  // Toggle species unlocked status
   const toggleUnlock = async (speciesId: number) => {
     if (!userId) return
 
@@ -64,52 +79,43 @@ export default function FishPage() {
   if (loadingUser) return <p className="text-center mt-10 text-black">Loading user...</p>
 
   return (
-    <div className="relative">
-      {/* Sidebar */}
-      <div
-        className={`fixed top-0 left-0 h-full bg-black bg-opacity-75 z-50 transform transition-all ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } w-64 p-4`}
-      >
-        <button onClick={() => setSidebarOpen(false)} className="text-white text-xl mb-4">Close Sidebar</button>
-        <ul className="text-white">
-          <li><a href="#section1">Section 1</a></li>
-          <li><a href="#section2">Section 2</a></li>
-        </ul>
-      </div>
-
-      {/* Main content */}
-      <div className={`p-4 grid grid-cols-4 gap-4 ${sidebarOpen ? 'ml-64' : ''}`}>
-        {/* Sidebar Toggle Button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute top-4 left-4 z-50 text-white"
-        >
-          ☰
-        </button>
-
-        {species
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .map(fish => {
-            const isUnlocked = unlocked.includes(fish.id)
-            return (
-              <div
-                key={fish.id}
-                onClick={() => toggleUnlock(fish.id)}
-                className={`cursor-pointer bg-white border rounded p-2 flex flex-col items-center transition-all duration-300 ${isUnlocked ? 'bg-opacity-100' : 'bg-opacity-30'}`}
-              >
-                <img
+    <InfiniteScroll
+      dataLength={species.length}
+      next={fetchMoreSpecies}
+      hasMore={hasMore}
+      loader={<div>Loading...</div>}
+      endMessage={<div>No more species</div>}
+    >
+      <div className="p-4 grid grid-cols-4 gap-4">
+        {species.map(fish => {
+          const isUnlocked = unlocked.includes(fish.id)
+          return (
+            <div
+              key={fish.id}
+              onClick={() => toggleUnlock(fish.id)}
+              className={`cursor-pointer bg-white border rounded p-2 flex flex-col items-center transition-all duration-300 ${isUnlocked ? 'bg-opacity-100' : 'bg-opacity-30'}`}
+            >
+              {/* Skeleton if not unlocked */}
+              {!isUnlocked ? (
+                <Skeleton height={200} width="100%" />
+              ) : (
+                <Image
                   src={fish.image_url}
                   alt={fish.name}
+                  width={500}
+                  height={500}
                   className={`w-full aspect-square object-cover mb-2 transition-transform duration-300 ${isUnlocked ? 'scale-100' : 'scale-90 grayscale'}`}
+                  loading="lazy"
                 />
-                <h2 className="font-bold text-center text-black">{fish.name}</h2>
-                <p className="text-sm italic text-center text-black">{fish.scientific_name}</p>
-                {isUnlocked && <p className="text-xs text-center mt-2 text-black">{fish.description}</p>}
-              </div>
-            )
-          })}
+              )}
+
+              <h2 className="font-bold text-center text-black">{fish.name}</h2>
+              <p className="text-sm italic text-center text-black">{fish.scientific_name}</p>
+              {isUnlocked && <p className="text-xs text-center mt-2 text-black">{fish.description}</p>}
+            </div>
+          )
+        })}
       </div>
-    </div>
+    </InfiniteScroll>
   )
 }
