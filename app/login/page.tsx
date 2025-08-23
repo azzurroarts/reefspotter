@@ -1,48 +1,56 @@
-'use client'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
 
-export default function LoginPage() {
+const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState('')
   const router = useRouter()
 
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setError(error.message)
-    else router.push('/fish')
-  }
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
 
-  const handleSignUp = async () => {
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) setError(error.message)
-    else router.push('/fish')
+    const { user, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
+      setError(error.message)
+    } else {
+      router.push('/') // Redirect to homepage after successful login
+    }
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-2xl font-bold mb-4">ReefSpotter Login / Sign Up</h1>
-      {error && <p className="text-red-600 mb-2">{error}</p>}
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        className="mb-2 p-2 border rounded w-64"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        className="mb-2 p-2 border rounded w-64"
-      />
-      <div className="flex gap-4 mt-2">
-        <button onClick={handleLogin} className="bg-blue-500 text-white px-4 py-2 rounded">Login</button>
-        <button onClick={handleSignUp} className="bg-green-500 text-white px-4 py-2 rounded">Sign Up</button>
-      </div>
+    <div className="flex justify-center items-center min-h-screen">
+      <form onSubmit={handleLogin} className="p-4 bg-white rounded shadow-md max-w-sm w-full">
+        <h2 className="text-center text-2xl font-bold mb-4">Login</h2>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded mb-4"
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded mb-4"
+          required
+        />
+        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
+          Log In
+        </button>
+
+        {error && <p className="text-red-500 text-center mt-2">{error}</p>}
+      </form>
     </div>
   )
 }
+
+export default LoginPage
