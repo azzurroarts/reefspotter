@@ -1,4 +1,5 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
@@ -8,7 +9,6 @@ type Species = {
   name: string
   scientific_name: string
   image_url: string
-  description: string
 }
 
 export default function FishPage() {
@@ -44,11 +44,8 @@ export default function FishPage() {
   useEffect(() => {
     if (!userId) return
     const fetchUnlocked = async () => {
-      const { data } = await supabase
-        .from('sightings')
-        .select('species_id')
-        .eq('user_id', userId)
-      if (data) setUnlocked(data.map((d) => d.species_id))
+      const { data } = await supabase.from('user_sightings').select('species_id').eq('user_id', userId)
+      if (data) setUnlocked(data.map(d => d.species_id))
     }
     fetchUnlocked()
   }, [userId])
@@ -56,55 +53,65 @@ export default function FishPage() {
   const toggleUnlock = async (speciesId: number) => {
     if (!userId) return
 
-    const isAlreadyUnlocked = unlocked.includes(speciesId)
-
-    if (isAlreadyUnlocked) {
-      // Remove the sighting from the 'sightings' table
-      await supabase
-        .from('sightings')
-        .delete()
-        .eq('user_id', userId)
-        .eq('species_id', speciesId)
-
-      // Update the unlocked species state
-      setUnlocked(unlocked.filter((id) => id !== speciesId))
+    // If species already unlocked, remove it from the sightings table
+    if (unlocked.includes(speciesId)) {
+      await supabase.from('user_sightings').delete().eq('user_id', userId).eq('species_id', speciesId)
+      setUnlocked(unlocked.filter(id => id !== speciesId))
     } else {
-      // Add the sighting to the 'sightings' table
-      await supabase.from('sightings').insert({ user_id: userId, species_id: speciesId })
-
-      // Update the unlocked species state
+      // Otherwise, insert the species into the sightings table
+      await supabase.from('user_sightings').insert({ user_id: userId, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
     }
   }
 
   if (loadingUser) return <p className="text-center mt-10 text-black">Loading user...</p>
 
+  // Calculate progress
+  const progressPercentage = (unlocked.length / species.length) * 100
+
   return (
-    <div className="p-4 grid grid-cols-4 gap-4">
-      {species
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((fish) => {
-          const isUnlocked = unlocked.includes(fish.id)
-          return (
-            <div
-              key={fish.id}
-              onClick={() => toggleUnlock(fish.id)}
-              className={`cursor-pointer bg-white border rounded p-2 flex flex-col items-center transition-all duration-300 ${
-                isUnlocked ? 'bg-opacity-100' : 'bg-opacity-30'
-              }`}
-            >
-              <img
-                src={fish.image_url}
-                alt={fish.name}
-                className={`w-full aspect-square object-cover mb-2 transition-transform duration-300 ${
-                  isUnlocked ? 'scale-100' : 'scale-90 grayscale'
-                }`}
-              />
-              <h2 className="font-bold text-center text-black">{fish.name}</h2>
-              <p className="text-sm italic text-center text-black">{fish.scientific_name}</p>
-            </div>
-          )
-        })}
+    <div className="relative">
+      {/* Progress Bar */}
+      <div className="fixed top-10 left-1/3 w-1/3 h-8 bg-gray-300 border border-black rounded-xl z-10">
+        <div
+          className="bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 h-full rounded-xl"
+          style={{
+            width: `${progressPercentage}%`, // Progress percentage
+          }}
+        ></div>
+        <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
+      </div>
+
+      {/* Species Cards */}
+      <div className="p-4 grid grid-cols-4 gap-4 mt-16">
+        {species
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map(fish => {
+            const isUnlocked = unlocked.includes(fish.id)
+            return (
+              <div
+                key={fish.id}
+                onClick={() => toggleUnlock(fish.id)}
+                className={`cursor-pointer border rounded p-4 flex flex-col items-center transition-all duration-300
+                  ${isUnlocked ? 'bg-white' : 'bg-black'}
+                  ${isUnlocked ? 'text-black' : 'text-white'}
+                  ${isUnlocked ? 'scale-100' : 'scale-90'}
+                `}
+              >
+                <img
+                  src={fish.image_url}
+                  alt={fish.name}
+                  className={`w-full aspect-square object-cover mb-2 transition-all duration-300 
+                    ${isUnlocked ? 'filter-none' : 'grayscale'}
+                    ${isUnlocked ? 'scale-100' : 'scale-90'}
+                  `}
+                />
+                <h2 className="font-bold text-center">{fish.name}</h2>
+                <p className="text-sm italic text-center">{fish.scientific_name}</p>
+              </div>
+            )
+          })}
+      </div>
     </div>
   )
 }
