@@ -4,6 +4,18 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
 
+type SupabaseUser = {
+  id: string
+  email: string | null // Handle email being possibly null
+  user_metadata: {
+    full_name: string
+    nickname: string
+    favourite_fish: string
+    location: string
+    profile_image: string
+  }
+}
+
 type Species = {
   id: number
   name: string
@@ -15,26 +27,21 @@ type Species = {
 export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
-  const [userId, setUserId] = useState<string | null>(null)
+  const [user, setUser] = useState<SupabaseUser | null>(null) // Correct type for user
   const [filter, setFilter] = useState<string>('All Species')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false) // State to toggle mobile menu
   const [isProfileOpen, setIsProfileOpen] = useState(false) // State for profile modal
-  const [userEmail, setUserEmail] = useState<string | null>(null) // To store user email
-  const [userName, setUserName] = useState<string | null>(null) // To store user name
   const router = useRouter()
 
   // Get current logged-in user
   useEffect(() => {
     const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      const { data: { user } } = await supabase.auth.getUser()
+
       if (user) {
-        setUserId(user.id)
-        setUserEmail(user.email || null) // handle undefined by setting null if undefined
-        setUserName(user.user_metadata.full_name || null) // same for user name
+        setUser(user) // This will now accept the user with the right type
       } else {
-        router.push('/login') // redirect if not logged in
+        router.push('/login') // Redirect to login if no user
       }
     }
     fetchUser()
@@ -51,22 +58,22 @@ export default function FishPage() {
 
   // Fetch unlocked species for current user
   useEffect(() => {
-    if (!userId) return
+    if (!user) return
     const fetchUnlocked = async () => {
-      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', userId)
+      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', user.id)
       if (data) setUnlocked(data.map(d => d.species_id))
     }
     fetchUnlocked()
-  }, [userId])
+  }, [user])
 
   const toggleUnlock = async (speciesId: number) => {
-    if (!userId) return
+    if (!user) return
 
     if (unlocked.includes(speciesId)) {
-      await supabase.from('sightings').delete().eq('user_id', userId).eq('species_id', speciesId)
+      await supabase.from('sightings').delete().eq('user_id', user.id).eq('species_id', speciesId)
       setUnlocked(unlocked.filter(id => id !== speciesId))
     } else {
-      await supabase.from('sightings').insert({ user_id: userId, species_id: speciesId })
+      await supabase.from('sightings').insert({ user_id: user.id, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
     }
   }
@@ -146,8 +153,8 @@ export default function FishPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
           <div className="bg-white p-8 rounded-lg w-1/3">
             <h2 className="text-2xl font-bold mb-4">User Profile</h2>
-            <p className="mb-2">Email: {userEmail}</p>
-            <p className="mb-2">Name: {userName}</p>
+            <p className="mb-2">Email: {user?.email}</p>
+            <p className="mb-2">Name: {user?.user_metadata.nickname}</p>
             <button
               onClick={() => setIsProfileOpen(false)}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
