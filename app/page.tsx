@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 type Species = {
   id: number
@@ -11,10 +12,22 @@ type Species = {
   image_url: string
 }
 
+type User = {
+  id: string
+  email: string
+  user_metadata: {
+    full_name: string
+    nickname: string
+    favourite_fish: string
+    location: string
+    profile_image: string
+  }
+}
+
 const FishPage = () => {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [showProfile, setShowProfile] = useState(false)
   const router = useRouter()
 
@@ -71,9 +84,11 @@ const FishPage = () => {
         className="profile-icon cursor-pointer absolute top-2 left-2 rounded-full"
         onClick={() => setShowProfile(true)}
       >
-        <img
+        <Image
           src={user?.user_metadata?.profile_image || '/default-avatar.jpg'}
           alt="Profile"
+          width={40}
+          height={40}
           className="w-10 h-10 rounded-full"
         />
       </div>
@@ -115,9 +130,11 @@ const FishPage = () => {
                   ${isUnlocked ? 'scale-100' : 'scale-90'}
                 `}
               >
-                <img
+                <Image
                   src={fish.image_url}
                   alt={fish.name}
+                  width={150}
+                  height={150}
                   className={`w-full aspect-square object-cover mb-2 transition-all duration-300 
                     ${isUnlocked ? 'filter-none' : 'grayscale'}
                     ${isUnlocked ? 'scale-100' : 'scale-90'}
