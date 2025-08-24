@@ -12,6 +12,19 @@ type Species = {
   location: string | null
 }
 
+type User = {
+  id: string;
+  email: string;
+  user_metadata: {
+    full_name: string;
+    nickname: string;
+    favourite_fish: string;
+    location: string;
+    profile_image: string;
+  };
+};
+
+
 export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
