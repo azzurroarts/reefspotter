@@ -53,13 +53,13 @@ body {
   object-fit: cover;
 }
 
-/* Header (reefspotter in lowercase) */
+/* Header (reefspotter in lowercase, closer letters) */
 .login-header {
   font-size: 3rem;
   font-weight: 800;
   color: #ffffff;
-  text-transform: lowercase;  /* Lowercase text */
-  letter-spacing: 3px;
+  text-transform: lowercase;
+  letter-spacing: 1px; /* Closer letters */
   margin-bottom: 40px;
 }
 
@@ -72,13 +72,14 @@ body {
   max-width: 400px;
 }
 
-/* Input fields (white background) */
+/* Input fields (white background, text black) */
 .input-field {
   padding: 15px;
   border: 2px solid #ccc;
   border-radius: 25px;
   font-size: 1rem;
   background-color: #ffffff;  /* White background */
+  color: #000000;             /* Black text inside input fields */
   transition: border-color 0.3s ease;
 }
 
@@ -103,7 +104,7 @@ body {
   background-color: #2563eb;
 }
 
-/* Sign-up link (larger text, white color) */
+/* Sign-up link (larger text, chunky blue) */
 .sign-up {
   margin-top: 20px;
   font-size: 2rem;   /* Twice the size */
@@ -111,7 +112,8 @@ body {
 }
 
 .sign-up a {
-  color: #ffffff;   /* White text */
+  color: #3b82f6;    /* Blue text like the login button */
+  font-weight: 700;   /* Chunky font */
   text-decoration: none;
 }
 
