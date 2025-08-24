@@ -21,9 +21,12 @@ const LoginPage = () => {
   return (
     <div className="login-container">
       <div className="image-circle">
-        <img src="https://csmqqtenglpbdgfobdsi.supabase.co/storage/v1/object/public/species-images/leafyseadragon.png" alt="Fish Species" />  {/* Replace with your image */}
+        <img 
+          src="https://csmqqtenglpbdgfobdsi.supabase.co/storage/v1/object/public/species-images/leafyseadragon.png" 
+          alt="Fish Species" 
+        />
       </div>
-      <h1 className="login-header">ReefSpotter</h1>  {/* Chunky "ReefSpotter" */}
+      <h1 className="login-header">reefspotter</h1> {/* Lowercase "ReefSpotter" */}
       <form onSubmit={handleLogin} className="login-form">
         <input
           type="email"
