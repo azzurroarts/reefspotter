@@ -13,22 +13,21 @@ type Species = {
 }
 
 type User = {
-  id: string;
-  email: string;
+  id: string
+  email: string
   user_metadata: {
-    full_name: string;
-    nickname: string;
-    favourite_fish: string;
-    location: string;
-    profile_image: string;
-  };
-};
-
+    full_name: string
+    nickname: string
+    favourite_fish: string
+    location: string
+    profile_image: string
+  }
+}
 
 export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
-  const [userId, setUserId] = useState<string | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [filter, setFilter] = useState<string>('All Species')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false) // State to toggle mobile menu
   const [isProfileOpen, setIsProfileOpen] = useState(false) // State for profile modal
@@ -36,18 +35,18 @@ export default function FishPage() {
   const [userName, setUserName] = useState<string | null>(null) // To store user name
   const router = useRouter()
 
-  // Get current logged-in user
+  // Fetch current logged-in user
   useEffect(() => {
     const fetchUser = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser()
       if (user) {
-        setUserId(user.id)
-        setUserEmail(user.email || null) // handle undefined by setting null if undefined
-        setUserName(user.user_metadata.full_name || null) // same for user name
+        setUser(user); // Now matches the correct User type
+        setUserEmail(user.email || null)
+        setUserName(user.user_metadata.full_name || null)
       } else {
-        router.push('/login') // redirect if not logged in
+        router.push('/login') // Redirect to login if no user
       }
     }
     fetchUser()
@@ -64,22 +63,22 @@ export default function FishPage() {
 
   // Fetch unlocked species for current user
   useEffect(() => {
-    if (!userId) return
+    if (!user) return
     const fetchUnlocked = async () => {
-      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', userId)
+      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', user.id)
       if (data) setUnlocked(data.map(d => d.species_id))
     }
     fetchUnlocked()
-  }, [userId])
+  }, [user])
 
   const toggleUnlock = async (speciesId: number) => {
-    if (!userId) return
+    if (!user) return
 
     if (unlocked.includes(speciesId)) {
-      await supabase.from('sightings').delete().eq('user_id', userId).eq('species_id', speciesId)
+      await supabase.from('sightings').delete().eq('user_id', user.id).eq('species_id', speciesId)
       setUnlocked(unlocked.filter(id => id !== speciesId))
     } else {
-      await supabase.from('sightings').insert({ user_id: userId, species_id: speciesId })
+      await supabase.from('sightings').insert({ user_id: user.id, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
     }
   }
