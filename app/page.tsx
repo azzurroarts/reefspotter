@@ -15,20 +15,34 @@ export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
   const [userId, setUserId] = useState<string | null>(null)
-  const [userEmail, setUserEmail] = useState<string | null>(null)
   const [loadingUser, setLoadingUser] = useState(true)
   const router = useRouter()
 
   // Get current logged-in user
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (user) {
         setUserId(user.id)
-        setUserEmail(user.email)  // Get the email of the logged-in user
+        
+        // Create user in the 'users' table if they don't exist
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('id')
+          .eq('id', user.id)
+          .single()
+        
+        // If the user doesn't exist in the 'users' table, insert them
+        if (!existingUser) {
+          await supabase.from('users').insert([{ id: user.id, email: user.email }])
+        }
       } else {
         router.push('/login') // redirect if not logged in
       }
+
       setLoadingUser(false)
     }
     fetchUser()
@@ -53,27 +67,23 @@ export default function FishPage() {
     fetchUnlocked()
   }, [userId])
 
-  const toggleUnlock = async (speciesId: number, speciesName: string) => {
-    if (!userId || !userEmail) return
+  const toggleUnlock = async (speciesId: number) => {
+    if (!userId) return
 
+    // If species already unlocked, remove it from the sightings table
     if (unlocked.includes(speciesId)) {
-      // Remove sighting entry
       await supabase.from('sightings').delete().eq('user_id', userId).eq('species_id', speciesId)
       setUnlocked(unlocked.filter(id => id !== speciesId))
     } else {
-      // Add sighting entry with email and species name
-      await supabase.from('sightings').insert({
-        user_id: userId,
-        species_id: speciesId,
-        user_email: userEmail,  // Save email in sightings
-        species_name: speciesName,  // Save species name in sightings
-      })
+      // Otherwise, insert the species into the sightings table
+      await supabase.from('sightings').insert({ user_id: userId, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
     }
   }
 
   if (loadingUser) return <p className="text-center mt-10 text-black">Loading user...</p>
 
+  // Calculate progress
   const progressPercentage = (unlocked.length / species.length) * 100
 
   return (
@@ -98,7 +108,7 @@ export default function FishPage() {
             return (
               <div
                 key={fish.id}
-                onClick={() => toggleUnlock(fish.id, fish.name)}
+                onClick={() => toggleUnlock(fish.id)}
                 className={`cursor-pointer border rounded p-4 flex flex-col items-center transition-all duration-300
                   ${isUnlocked ? 'bg-white' : 'bg-black'}
                   ${isUnlocked ? 'text-black' : 'text-white'}
