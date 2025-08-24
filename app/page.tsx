@@ -12,45 +12,13 @@ type Species = {
   location: string | null
 }
 
-type User = {
-  id: string
-  email: string
-  user_metadata: {
-    full_name: string
-    nickname: string
-    favourite_fish: string
-    location: string
-    profile_image: string
-  }
-}
-
 export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
-  const [user, setUser] = useState<User | null>(null)
   const [filter, setFilter] = useState<string>('All Species')
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false) // State to toggle mobile menu
-  const [isProfileOpen, setIsProfileOpen] = useState(false) // State for profile modal
-  const [userEmail, setUserEmail] = useState<string | null>(null) // To store user email
-  const [userName, setUserName] = useState<string | null>(null) // To store user name
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
   const router = useRouter()
-
-  // Fetch current logged-in user
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) {
-        setUser(user); // Now matches the correct User type
-        setUserEmail(user.email || null)
-        setUserName(user.user_metadata.full_name || null)
-      } else {
-        router.push('/login') // Redirect to login if no user
-      }
-    }
-    fetchUser()
-  }, [router])
 
   // Fetch all species
   useEffect(() => {
@@ -62,23 +30,19 @@ export default function FishPage() {
   }, [])
 
   // Fetch unlocked species for current user
-  useEffect(() => {
-    if (!user) return
-    const fetchUnlocked = async () => {
-      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', user.id)
-      if (data) setUnlocked(data.map(d => d.species_id))
-    }
-    fetchUnlocked()
-  }, [user])
+  // Remove this part for now, we'll keep this simple and not handle user data
+  // const fetchUnlocked = async () => {
+  //   const { data } = await supabase.from('sightings').select('species_id').eq('user_id', userId)
+  //   if (data) setUnlocked(data.map(d => d.species_id))
+  // }
 
   const toggleUnlock = async (speciesId: number) => {
-    if (!user) return
-
+    // Skip user logic here, keep it simple for now
     if (unlocked.includes(speciesId)) {
-      await supabase.from('sightings').delete().eq('user_id', user.id).eq('species_id', speciesId)
+      await supabase.from('sightings').delete().eq('species_id', speciesId)
       setUnlocked(unlocked.filter(id => id !== speciesId))
     } else {
-      await supabase.from('sightings').insert({ user_id: user.id, species_id: speciesId })
+      await supabase.from('sightings').insert({ species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
     }
   }
@@ -143,7 +107,7 @@ export default function FishPage() {
         </select>
       </div>
 
-      {/* Profile Icon */}
+      {/* Profile Icon (No User Logic) */}
       <div className="fixed top-10 left-4 z-20">
         <button
           onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -158,8 +122,8 @@ export default function FishPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
           <div className="bg-white p-8 rounded-lg w-1/3">
             <h2 className="text-2xl font-bold mb-4">User Profile</h2>
-            <p className="mb-2">Email: {userEmail}</p>
-            <p className="mb-2">Name: {userName}</p>
+            <p className="mb-2">Email: Not implemented</p>
+            <p className="mb-2">Name: Not implemented</p>
             <button
               onClick={() => setIsProfileOpen(false)}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
