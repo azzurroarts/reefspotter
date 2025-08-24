@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image' // Import Image from next/image
 
 type Species = {
   id: number
@@ -175,11 +174,9 @@ export default function FishPage() {
                   ${isUnlocked ? 'scale-100' : 'scale-90'}
                 `}
               >
-                <Image
+                <img
                   src={fish.image_url}
                   alt={fish.name}
-                  width={200}
-                  height={200}
                   className={`w-full aspect-square object-cover mb-2 transition-all duration-300 
                     ${isUnlocked ? 'filter-none' : 'grayscale'}
                     ${isUnlocked ? 'scale-100' : 'scale-90'}
