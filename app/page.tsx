@@ -19,6 +19,9 @@ export default function FishPage() {
   const [loadingUser, setLoadingUser] = useState(true)
   const [filter, setFilter] = useState<string>('All Species')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false) // State to toggle mobile menu
+  const [isProfileOpen, setIsProfileOpen] = useState(false) // State for profile modal
+  const [userEmail, setUserEmail] = useState<string | null>(null) // To store user email
+  const [userName, setUserName] = useState<string | null>(null) // To store user name
   const router = useRouter()
 
   // Get current logged-in user
@@ -27,8 +30,13 @@ export default function FishPage() {
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (user) setUserId(user.id)
-      else router.push('/login') // redirect if not logged in
+      if (user) {
+        setUserId(user.id)
+        setUserEmail(user.email)
+        setUserName(user.user_metadata.full_name)
+      } else {
+        router.push('/login') // redirect if not logged in
+      }
       setLoadingUser(false)
     }
     fetchUser()
@@ -77,7 +85,7 @@ export default function FishPage() {
   return (
     <div className="relative">
       {/* Progress Bar */}
-      <div className="fixed top-10 left-1/3 w-1/3 h-8 bg-gray-300 border border-black rounded-xl z-10">
+      <div className="fixed top-10 left-1/3 w-1/3 md:w-1/4 h-10 bg-gray-300 border border-black rounded-xl z-10">
         <div
           className="bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 h-full rounded-xl"
           style={{
@@ -124,6 +132,33 @@ export default function FishPage() {
           <option value="GSR">Great Southern Reef (GSR)</option>
         </select>
       </div>
+
+      {/* Profile Icon */}
+      <div className="fixed top-10 left-4 z-20">
+        <button
+          onClick={() => setIsProfileOpen(!isProfileOpen)}
+          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md focus:outline-none"
+        >
+          👤
+        </button>
+      </div>
+
+      {/* Profile Modal */}
+      {isProfileOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
+          <div className="bg-white p-8 rounded-lg w-1/3">
+            <h2 className="text-2xl font-bold mb-4">User Profile</h2>
+            <p className="mb-2">Email: {userEmail}</p>
+            <p className="mb-2">Name: {userName}</p>
+            <button
+              onClick={() => setIsProfileOpen(false)}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Species Cards */}
       <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
