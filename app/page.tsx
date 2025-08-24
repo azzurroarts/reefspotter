@@ -89,12 +89,12 @@ export default function FishPage() {
         <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
       </div>
 
-      {/* Filter Bar - Now to the right of the progress bar */}
-      <div className="fixed top-10 right-1/3 w-1/3 mb-4">
+      {/* Filter Dropdown - Positioned at top-right and fixed */}
+      <div className="fixed top-10 right-4 z-20">
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="w-full p-2 border rounded-lg bg-white"
+          className="p-2 border rounded-full bg-white shadow-md focus:outline-none focus:ring-2 focus:ring-pink-500"
         >
           <option value="All Species">All Species</option>
           <option value="GBR">Great Barrier Reef (GBR)</option>
