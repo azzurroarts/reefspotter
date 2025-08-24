@@ -24,8 +24,25 @@ export default function FishPage() {
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (user) setUserId(user.id)
-      else router.push('/login') // redirect if not logged in
+
+      if (user) {
+        setUserId(user.id)
+        
+        // Create user in the 'users' table if they don't exist
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('id')
+          .eq('id', user.id)
+          .single()
+        
+        // If the user doesn't exist in the 'users' table, insert them
+        if (!existingUser) {
+          await supabase.from('users').insert([{ id: user.id, email: user.email }])
+        }
+      } else {
+        router.push('/login') // redirect if not logged in
+      }
+
       setLoadingUser(false)
     }
     fetchUser()
@@ -44,7 +61,7 @@ export default function FishPage() {
   useEffect(() => {
     if (!userId) return
     const fetchUnlocked = async () => {
-      const { data } = await supabase.from('user_sightings').select('species_id').eq('user_id', userId)
+      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', userId)
       if (data) setUnlocked(data.map(d => d.species_id))
     }
     fetchUnlocked()
@@ -55,11 +72,11 @@ export default function FishPage() {
 
     // If species already unlocked, remove it from the sightings table
     if (unlocked.includes(speciesId)) {
-      await supabase.from('user_sightings').delete().eq('user_id', userId).eq('species_id', speciesId)
+      await supabase.from('sightings').delete().eq('user_id', userId).eq('species_id', speciesId)
       setUnlocked(unlocked.filter(id => id !== speciesId))
     } else {
       // Otherwise, insert the species into the sightings table
-      await supabase.from('user_sightings').insert({ user_id: userId, species_id: speciesId })
+      await supabase.from('sightings').insert({ user_id: userId, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
     }
   }
