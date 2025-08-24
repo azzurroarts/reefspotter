@@ -9,7 +9,7 @@ type Species = {
   name: string
   scientific_name: string
   image_url: string
-  location: string // New column added
+  location: string | null
 }
 
 export default function FishPage() {
@@ -17,7 +17,8 @@ export default function FishPage() {
   const [unlocked, setUnlocked] = useState<number[]>([])
   const [userId, setUserId] = useState<string | null>(null)
   const [loadingUser, setLoadingUser] = useState(true)
-  const [filter, setFilter] = useState('') // Filter state (GBR, GSR)
+  const [filter, setFilter] = useState<string>('All Species')
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false) // State to toggle mobile menu
   const router = useRouter()
 
   // Get current logged-in user
@@ -64,15 +65,14 @@ export default function FishPage() {
     }
   }
 
-  // Filter species by location
-  const filteredSpecies = species.filter(fish => {
-    if (!filter) return true
+  // Filter species based on location
+  const filteredSpecies = species.filter((fish) => {
+    if (filter === 'All Species') return true
+    if (fish.location === null) return true // Show species with NULL location in both filters
     return fish.location === filter
   })
 
-  if (loadingUser) return <p className="text-center mt-10 text-black">Loading user...</p>
-
-  const progressPercentage = (unlocked.length / species.length) * 100
+  const progressPercentage = (unlocked.length / filteredSpecies.length) * 100
 
   return (
     <div className="relative">
@@ -87,21 +87,46 @@ export default function FishPage() {
         <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
       </div>
 
-      {/* Filter Bar */}
-      <div className="fixed top-20 left-1/3 w-1/3 mb-4">
+      {/* Mobile Hamburger Icon for Location Filter */}
+      <div className="fixed top-10 right-4 z-20 md:hidden">
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md focus:outline-none"
+        >
+          🍔
+        </button>
+      </div>
+
+      {/* Mobile Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="fixed top-16 right-4 bg-white border-2 border-black rounded-md z-20 p-3">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md appearance-none focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300 cursor-pointer"
+          >
+            <option value="All Species">All Species</option>
+            <option value="GBR">Great Barrier Reef (GBR)</option>
+            <option value="GSR">Great Southern Reef (GSR)</option>
+          </select>
+        </div>
+      )}
+
+      {/* Desktop Dropdown */}
+      <div className="hidden md:flex fixed top-10 right-4 z-20">
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="w-full p-2 border rounded-lg bg-white"
+          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md appearance-none focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300 cursor-pointer"
         >
-          <option value="">All Locations</option>
+          <option value="All Species">All Species</option>
           <option value="GBR">Great Barrier Reef (GBR)</option>
           <option value="GSR">Great Southern Reef (GSR)</option>
         </select>
       </div>
 
       {/* Species Cards */}
-      <div className="p-4 grid grid-cols-4 gap-4 mt-16">
+      <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
         {filteredSpecies
           .sort((a, b) => a.name.localeCompare(b.name))
           .map(fish => {
