@@ -1,4 +1,5 @@
 'use client'
+
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
@@ -10,11 +11,12 @@ const LoginPage = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      console.error(error.message)
+      console.error("Login error:", error.message)
     } else {
-      router.push('/fish') // Redirect to fish page
+      router.push('/fish') // Redirect to fish page after successful login
     }
   }
 
@@ -44,6 +46,7 @@ const LoginPage = () => {
         />
         <button type="submit" className="login-btn">Login</button>
         <div className="sign-up">
+          {/* Ensure correct path to the Sign Up page */}
           <p>Don&apos;t have an account? <a href="/signup">Sign up</a></p>
         </div>
       </form>
