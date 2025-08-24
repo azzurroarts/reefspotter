@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image' // Import Image from next/image
 
 type Species = {
   id: number
@@ -16,7 +17,6 @@ export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
   const [userId, setUserId] = useState<string | null>(null)
-  const [loadingUser, setLoadingUser] = useState(true)
   const [filter, setFilter] = useState<string>('All Species')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false) // State to toggle mobile menu
   const [isProfileOpen, setIsProfileOpen] = useState(false) // State for profile modal
@@ -32,12 +32,11 @@ export default function FishPage() {
       } = await supabase.auth.getUser()
       if (user) {
         setUserId(user.id)
-        setUserEmail(user.email)
-        setUserName(user.user_metadata.full_name)
+        setUserEmail(user.email || null) // handle undefined by setting null if undefined
+        setUserName(user.user_metadata.full_name || null) // same for user name
       } else {
         router.push('/login') // redirect if not logged in
       }
-      setLoadingUser(false)
     }
     fetchUser()
   }, [router])
@@ -176,9 +175,11 @@ export default function FishPage() {
                   ${isUnlocked ? 'scale-100' : 'scale-90'}
                 `}
               >
-                <img
+                <Image
                   src={fish.image_url}
                   alt={fish.name}
+                  width={200}
+                  height={200}
                   className={`w-full aspect-square object-cover mb-2 transition-all duration-300 
                     ${isUnlocked ? 'filter-none' : 'grayscale'}
                     ${isUnlocked ? 'scale-100' : 'scale-90'}
