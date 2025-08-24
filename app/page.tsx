@@ -9,7 +9,7 @@ type Species = {
   name: string
   scientific_name: string
   image_url: string
-  location: string // New column added
+  location: string | null // Allow NULL for missing location
 }
 
 export default function FishPage() {
@@ -17,7 +17,7 @@ export default function FishPage() {
   const [unlocked, setUnlocked] = useState<number[]>([])
   const [userId, setUserId] = useState<string | null>(null)
   const [loadingUser, setLoadingUser] = useState(true)
-  const [filter, setFilter] = useState('') // Filter state (GBR, GSR)
+  const [filter, setFilter] = useState('') // Filter state (GBR, GSR, All Species)
   const router = useRouter()
 
   // Get current logged-in user
@@ -64,9 +64,11 @@ export default function FishPage() {
     }
   }
 
-  // Filter species by location
+  // Filter species by location, including NULL as both GBR and GSR
   const filteredSpecies = species.filter(fish => {
-    if (!filter) return true
+    if (filter === '') return true // No filter (All Species)
+    if (filter === 'All Species') return true // Include all species
+    if (fish.location === null) return true // Include NULL location in both GBR and GSR
     return fish.location === filter
   })
 
@@ -87,14 +89,14 @@ export default function FishPage() {
         <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
       </div>
 
-      {/* Filter Bar */}
-      <div className="fixed top-20 left-1/3 w-1/3 mb-4">
+      {/* Filter Bar - Now to the right of the progress bar */}
+      <div className="fixed top-10 right-1/3 w-1/3 mb-4">
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           className="w-full p-2 border rounded-lg bg-white"
         >
-          <option value="">All Locations</option>
+          <option value="All Species">All Species</option>
           <option value="GBR">Great Barrier Reef (GBR)</option>
           <option value="GSR">Great Southern Reef (GSR)</option>
         </select>
