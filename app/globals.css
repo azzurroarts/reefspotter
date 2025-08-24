@@ -45,12 +45,14 @@ body {
   border-radius: 50%;
   overflow: hidden;
   margin-bottom: 20px;
+  < img src="https://csmqqtenglpbdgfobdsi.supabase.co/storage/v1/object/public/species-images/leafyseadragon.png" alt="Fish Species" />
 }
 
 .image-circle img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  
 }
 
 /* Header */

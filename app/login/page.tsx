@@ -21,7 +21,7 @@ const LoginPage = () => {
   return (
     <div className="login-container">
       <div className="image-circle">
-        <img src="/path-to-your-fish-image.jpg" alt="Fish Species" />
+        <img src="https://csmqqtenglpbdgfobdsi.supabase.co/storage/v1/object/public/species-images/leafyseadragon.png" alt="Fish Species" />
       </div>
       <h1 className="login-header">Login</h1>
       <form onSubmit={handleLogin} className="login-form">
