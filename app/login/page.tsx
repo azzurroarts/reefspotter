@@ -26,7 +26,7 @@ const LoginPage = () => {
           alt="Fish Species" 
         />
       </div>
-      <h1 className="login-header">reefspotter</h1> {/* Lowercase "ReefSpotter" */}
+      <h1 className="login-header">reefspotter</h1>
       <form onSubmit={handleLogin} className="login-form">
         <input
           type="email"
