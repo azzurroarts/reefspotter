@@ -9,26 +9,25 @@ type Species = {
   name: string
   scientific_name: string
   image_url: string
+  location: string // New column added
 }
 
 export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
   const [userId, setUserId] = useState<string | null>(null)
-  const [userEmail, setUserEmail] = useState<string | null>(null)
   const [loadingUser, setLoadingUser] = useState(true)
+  const [filter, setFilter] = useState('') // Filter state (GBR, GSR)
   const router = useRouter()
 
   // Get current logged-in user
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUserId(user.id)
-        setUserEmail(user.email)  // Get the email of the logged-in user
-      } else {
-        router.push('/login') // redirect if not logged in
-      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user) setUserId(user.id)
+      else router.push('/login') // redirect if not logged in
       setLoadingUser(false)
     }
     fetchUser()
@@ -53,24 +52,23 @@ export default function FishPage() {
     fetchUnlocked()
   }, [userId])
 
-  const toggleUnlock = async (speciesId: number, speciesName: string) => {
-    if (!userId || !userEmail) return
+  const toggleUnlock = async (speciesId: number) => {
+    if (!userId) return
 
     if (unlocked.includes(speciesId)) {
-      // Remove sighting entry
       await supabase.from('sightings').delete().eq('user_id', userId).eq('species_id', speciesId)
       setUnlocked(unlocked.filter(id => id !== speciesId))
     } else {
-      // Add sighting entry with email and species name
-      await supabase.from('sightings').insert({
-        user_id: userId,
-        species_id: speciesId,
-        user_email: userEmail,  // Save email in sightings
-        species_name: speciesName,  // Save species name in sightings
-      })
+      await supabase.from('sightings').insert({ user_id: userId, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
     }
   }
+
+  // Filter species by location
+  const filteredSpecies = species.filter(fish => {
+    if (!filter) return true
+    return fish.location === filter
+  })
 
   if (loadingUser) return <p className="text-center mt-10 text-black">Loading user...</p>
 
@@ -89,16 +87,29 @@ export default function FishPage() {
         <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
       </div>
 
+      {/* Filter Bar */}
+      <div className="fixed top-20 left-1/3 w-1/3 mb-4">
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="w-full p-2 border rounded-lg bg-white"
+        >
+          <option value="">All Locations</option>
+          <option value="GBR">Great Barrier Reef (GBR)</option>
+          <option value="GSR">Great Southern Reef (GSR)</option>
+        </select>
+      </div>
+
       {/* Species Cards */}
       <div className="p-4 grid grid-cols-4 gap-4 mt-16">
-        {species
+        {filteredSpecies
           .sort((a, b) => a.name.localeCompare(b.name))
           .map(fish => {
             const isUnlocked = unlocked.includes(fish.id)
             return (
               <div
                 key={fish.id}
-                onClick={() => toggleUnlock(fish.id, fish.name)}  // Correctly reference the name
+                onClick={() => toggleUnlock(fish.id)}
                 className={`cursor-pointer border rounded p-4 flex flex-col items-center transition-all duration-300
                   ${isUnlocked ? 'bg-white' : 'bg-black'}
                   ${isUnlocked ? 'text-black' : 'text-white'}
