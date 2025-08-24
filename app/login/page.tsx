@@ -20,21 +20,29 @@ const LoginPage = () => {
 
   return (
     <div className="login-container">
-      <h1>Login</h1>
-      <form onSubmit={handleLogin}>
+      <div className="image-circle">
+        <img src="/path-to-your-fish-image.jpg" alt="Fish Species" />
+      </div>
+      <h1 className="login-header">Login</h1>
+      <form onSubmit={handleLogin} className="login-form">
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="input-field"
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="input-field"
         />
-        <button type="submit">Login</button>
+        <button type="submit" className="login-btn">Login</button>
+        <div className="sign-up">
+          <p>Don't have an account? <a href="/signup">Sign up</a></p>
+        </div>
       </form>
     </div>
   )
