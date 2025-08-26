@@ -47,7 +47,7 @@ const LoginPage = () => {
         <button type="submit" className="login-btn">Login</button>
         <div className="sign-up">
           {/* Ensure correct path to the Sign Up page */}
-          <p>Don&apos;t have an account? <a href="/signup">Sign up</a></p>
+          <p>Don&apos;t have an account? <a href="/app/signup">Sign up</a></p>
         </div>
       </form>
     </div>
