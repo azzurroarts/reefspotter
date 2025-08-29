@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 type Species = {
   id: number
@@ -11,29 +12,34 @@ type Species = {
   image_url: string
 }
 
-
+type UserType = {
+  id: string
+  email: string
+  user_metadata: {
+    full_name?: string
+    nickname?: string
+    favourite_fish?: string
+    location?: string
+    profile_image?: string
+  }
+}
 
 export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserType | null>(null)
   const [showProfile, setShowProfile] = useState(false)
   const router = useRouter()
 
-  // Fetch current logged-in user
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUser(user)
-      } else {
-        router.push('/login') // Redirect to login if no user
-      }
+      if (user) setUser(user)
+      else router.push('/login')
     }
     fetchUser()
   }, [router])
 
-  // Fetch all species
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
@@ -42,7 +48,6 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
-  // Fetch unlocked species for the current user
   useEffect(() => {
     if (!user) return
     const fetchUnlocked = async () => {
@@ -54,7 +59,6 @@ export default function FishPage() {
 
   const toggleUnlock = async (speciesId: number) => {
     if (!user) return
-
     if (unlocked.includes(speciesId)) {
       await supabase.from('sightings').delete().eq('user_id', user.id).eq('species_id', speciesId)
       setUnlocked(unlocked.filter(id => id !== speciesId))
@@ -64,19 +68,21 @@ export default function FishPage() {
     }
   }
 
-  const progressPercentage = (unlocked.length / species.length) * 100
+  const progressPercentage = species.length ? (unlocked.length / species.length) * 100 : 0
 
   return (
-    <div className="relative">
+    <div className="relative p-4">
       {/* Profile Icon */}
       <div
         className="profile-icon cursor-pointer absolute top-2 left-2 rounded-full"
         onClick={() => setShowProfile(true)}
       >
-        <img
+        <Image
           src={user?.user_metadata?.profile_image || '/default-avatar.jpg'}
           alt="Profile"
-          className="w-10 h-10 rounded-full"
+          width={40}
+          height={40}
+          className="rounded-full"
         />
       </div>
 
@@ -94,15 +100,13 @@ export default function FishPage() {
       <div className="fixed top-10 left-1/3 w-1/3 h-8 bg-gray-300 border border-black rounded-xl z-10">
         <div
           className="bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 h-full rounded-xl"
-          style={{
-            width: `${progressPercentage}%`, // Progress percentage
-          }}
+          style={{ width: `${progressPercentage}%` }}
         ></div>
         <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
       </div>
 
       {/* Species Cards */}
-      <div className="p-4 grid grid-cols-4 gap-4 mt-16">
+      <div className="grid grid-cols-4 gap-4 mt-16">
         {species
           .sort((a, b) => a.name.localeCompare(b.name))
           .map(fish => {
@@ -112,18 +116,14 @@ export default function FishPage() {
                 key={fish.id}
                 onClick={() => toggleUnlock(fish.id)}
                 className={`cursor-pointer border rounded p-4 flex flex-col items-center transition-all duration-300
-                  ${isUnlocked ? 'bg-white' : 'bg-black'}
-                  ${isUnlocked ? 'text-black' : 'text-white'}
-                  ${isUnlocked ? 'scale-100' : 'scale-90'}
-                `}
+                  ${isUnlocked ? 'bg-white text-black scale-100' : 'bg-black text-white scale-90'}`}
               >
-                <img
+                <Image
                   src={fish.image_url}
                   alt={fish.name}
-                  className={`w-full aspect-square object-cover mb-2 transition-all duration-300 
-                    ${isUnlocked ? 'filter-none' : 'grayscale'}
-                    ${isUnlocked ? 'scale-100' : 'scale-90'}
-                  `}
+                  width={200}
+                  height={200}
+                  className={`${isUnlocked ? 'filter-none' : 'grayscale'} transition-all duration-300`}
                 />
                 <h2 className="font-bold text-center">{fish.name}</h2>
                 <p className="text-sm italic text-center">{fish.scientific_name}</p>
