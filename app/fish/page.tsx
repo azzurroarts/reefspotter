@@ -21,7 +21,7 @@ type UserType = {
     favourite_fish?: string
     location?: string
     profile_image?: string
-  }
+  } | null
 }
 
 export default function FishPage() {
@@ -31,6 +31,7 @@ export default function FishPage() {
   const [showProfile, setShowProfile] = useState(false)
   const router = useRouter()
 
+  // Fetch logged-in user
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -40,6 +41,7 @@ export default function FishPage() {
     fetchUser()
   }, [router])
 
+  // Fetch all species
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
@@ -48,10 +50,14 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
+  // Fetch unlocked species for current user
   useEffect(() => {
     if (!user) return
     const fetchUnlocked = async () => {
-      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', user.id)
+      const { data } = await supabase
+        .from('sightings')
+        .select('species_id')
+        .eq('user_id', user.id)
       if (data) setUnlocked(data.map(d => d.species_id))
     }
     fetchUnlocked()
@@ -78,7 +84,7 @@ export default function FishPage() {
         onClick={() => setShowProfile(true)}
       >
         <Image
-          src={user?.user_metadata?.profile_image ?? '/default-avatar.jpg'}
+          src={(user?.user_metadata?.profile_image ?? '/default-avatar.jpg') as string}
           alt="Profile"
           width={40}
           height={40}
@@ -90,9 +96,9 @@ export default function FishPage() {
       {showProfile && (
         <div className="profile-popup fixed top-1/4 left-1/4 bg-white p-6 rounded-lg shadow-lg z-20">
           <button onClick={() => setShowProfile(false)} className="close-btn">X</button>
-          <h2>{user?.user_metadata?.nickname}</h2>
-          <p>Favourite Fish: {user?.user_metadata?.favourite_fish}</p>
-          <p>Location: {user?.user_metadata?.location}</p>
+          <h2>{user?.user_metadata?.nickname ?? 'No nickname'}</h2>
+          <p>Favourite Fish: {user?.user_metadata?.favourite_fish ?? 'Unknown'}</p>
+          <p>Location: {user?.user_metadata?.location ?? 'Unknown'}</p>
         </div>
       )}
 
@@ -102,7 +108,9 @@ export default function FishPage() {
           className="bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 h-full rounded-xl"
           style={{ width: `${progressPercentage}%` }}
         ></div>
-        <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
+        <div className="absolute top-0 right-2 text-black font-bold">
+          {Math.round(progressPercentage)}%
+        </div>
       </div>
 
       {/* Species Cards */}
