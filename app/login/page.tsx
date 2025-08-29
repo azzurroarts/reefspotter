@@ -3,53 +3,27 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setError(error.message)
-    else router.push('/fish')
+    if (!error) router.push('/fish')
+    else console.error(error.message)
   }
 
   return (
-    <div className="login-container">
-      <div className="image-circle">
-        <Image
-          src="https://csmqqtenglpbdgfobdsi.supabase.co/storage/v1/object/public/species-images/leafyseadragon.png"
-          alt="Fish Species"
-          width={200}
-          height={200}
-        />
-      </div>
-      <h1 className="login-header">reefspotter</h1>
-      {error && <p className="text-red-500 font-bold">{error}</p>}
-      <form onSubmit={handleLogin} className="login-form">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="input-field"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="input-field"
-        />
-        <button type="submit" className="login-btn">Login</button>
+    <div className="flex justify-center items-center h-screen bg-blue-100">
+      <form onSubmit={handleLogin} className="bg-white p-8 rounded-xl shadow-md flex flex-col gap-4 w-80">
+        <h1 className="text-center text-2xl font-bold">Login</h1>
+        <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="p-2 border rounded" />
+        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="p-2 border rounded" />
+        <button type="submit" className="bg-blue-500 text-white py-2 rounded">Login</button>
       </form>
-      <div className="sign-up">
-        <p>Don&apos;t have an account? <a href="/signup">Sign up</a></p>
-      </div>
     </div>
   )
 }
