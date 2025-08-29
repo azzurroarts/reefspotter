@@ -15,7 +15,7 @@ type Species = {
 type UserType = {
   id: string
   email: string
-  user_metadata: {
+  user_metadata?: {
     full_name?: string
     nickname?: string
     favourite_fish?: string
@@ -63,7 +63,7 @@ export default function FishPage() {
       await supabase.from('sightings').delete().eq('user_id', user.id).eq('species_id', speciesId)
       setUnlocked(unlocked.filter(id => id !== speciesId))
     } else {
-      await supabase.from('sightings').insert({ user_id: user.id, species_id: speciesId })
+      await supabase.from('sightings').insert({ user_id: user.id, species_id })
       setUnlocked([...unlocked, speciesId])
     }
   }
@@ -78,7 +78,7 @@ export default function FishPage() {
         onClick={() => setShowProfile(true)}
       >
         <Image
-          src={user?.user_metadata?.profile_image || '/default-avatar.jpg'}
+          src={user?.user_metadata?.profile_image ?? '/default-avatar.jpg'}
           alt="Profile"
           width={40}
           height={40}
