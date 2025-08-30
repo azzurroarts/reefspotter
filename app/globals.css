@@ -257,7 +257,7 @@ html, body {
   .progress-container {
     position: absolute;     /* position relative to parent or sticky header */
     top: 5.5rem;            /* same as sticky buttons top */
-    left: auto;             /* reset left */
+    left: 10rem;             /* reset left */
     right: 1rem;            /* hug the right edge */
     width: calc(100% - 10rem); /* fill remaining space next to buttons (adjust 10rem if needed) */
     max-width: none;        /* remove desktop max-width */
