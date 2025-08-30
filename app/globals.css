@@ -201,8 +201,8 @@ html, body {
 }
 
 .sticky-button {
-  width: 2rem;       /* was 4rem – made smaller */
-  height: 2rem;      /* was 4rem – made smaller */
+  width: 3rem;       /* was 4rem – made smaller */
+  height: 3rem;      /* was 4rem – made smaller */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -222,8 +222,8 @@ html, body {
 
 @media (min-width: 768px) {
   .sticky-button {
-    width: 4rem;      /* was 5.5rem – smaller on desktop */
-    height: 4rem;     /* was 5.5rem – smaller on desktop */
+    width: 3rem;      /* was 5.5rem – smaller on desktop */
+    height: 3rem;     /* was 5.5rem – smaller on desktop */
     font-size: 2rem;  /* was 2.75rem – smaller emoji */
   }
 }
@@ -250,4 +250,27 @@ html, body {
   background-color: white;
   color: black;
   font-weight: bold;
+}
+
+/* Mobile progress bar adjustment */
+@media (max-width: 767px) {
+  .progress-container {
+    position: absolute;     /* position relative to parent or sticky header */
+    top: 5.5rem;            /* same as sticky buttons top */
+    left: auto;             /* reset left */
+    right: 1rem;            /* hug the right edge */
+    width: calc(100% - 10rem); /* fill remaining space next to buttons (adjust 10rem if needed) */
+    max-width: none;        /* remove desktop max-width */
+    height: 1.5rem;
+    border-radius: 12px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 12px;
+  }
+
+  .progress-container div {
+    right: 0.5rem; /* adjust the percentage text inside the bar */
+  }
 }
