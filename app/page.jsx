@@ -1,19 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 
 export default function FishPage() {
   const [species, setSpecies] = useState([])
   const [unlocked, setUnlocked] = useState([])
   const [filter, setFilter] = useState('All Species')
-  const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [user, setUser] = useState({ id: 'guest', email: null, nickname: 'GUEST' })
 
-  // Guest view: no login required yet
-  const user = { id: 'guest', email: null, nickname: 'GUEST' }
-
-  // Fetch species
+  // Fetch species from Supabase
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
@@ -22,51 +20,64 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
-  // Fetch unlocked species for this user
+  // Example: fetch unlocked species for guest or logged in user
   useEffect(() => {
+    if (user.id === 'guest') return
     const fetchUnlocked = async () => {
-      const { data } = await supabase
-        .from('sightings')
-        .select('species_id')
-        .eq('user_id', user.id)
+      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', user.id)
       if (data) setUnlocked(data.map(d => d.species_id))
     }
     fetchUnlocked()
-  }, [user.id])
+  }, [user])
 
-  const toggleUnlock = async (speciesId) => {
+  // Toggle species unlocked
+  const toggleUnlock = (speciesId) => {
     if (unlocked.includes(speciesId)) {
-      await supabase.from('sightings').delete().eq('user_id', user.id).eq('species_id', speciesId)
       setUnlocked(unlocked.filter(id => id !== speciesId))
     } else {
-      await supabase.from('sightings').insert({ user_id: user.id, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
     }
   }
 
+  // Filtered species
   const filteredSpecies = species.filter(fish => {
     if (filter === 'All Species') return true
     if (!fish.location) return true
     return fish.location === filter
   })
 
-  const progress = (unlocked.length / filteredSpecies.length) * 100 || 0
+  // Progress bar percentage
+  const progress = filteredSpecies.length > 0 ? Math.round((unlocked.length / filteredSpecies.length) * 100) : 0
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen p-4 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {/* Progress Bar */}
       <div className="progress-container">
-        <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+        <div
+          className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-400 to-blue-500"
+          style={{ width: `${progress}%` }}
+        ></div>
+        <div className="absolute top-0 right-2 font-bold text-black dark:text-white">{progress}%</div>
       </div>
 
       {/* Mobile Dropdown Button */}
-      <div className="fixed top-10 left-4 z-20">
-        <button className="mobile-menu-button" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>🐠</button>
+      <div className="fixed top-10 left-4 z-50">
+        <button
+          className="mobile-menu-button"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          🐠
+        </button>
       </div>
 
+      {/* Mobile Dropdown */}
       {isMobileMenuOpen && (
         <div className="mobile-menu">
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="w-full"
+          >
             <option value="All Species">All Species</option>
             <option value="GBR">Great Barrier Reef (GBR)</option>
             <option value="GSR">Great Southern Reef (GSR)</option>
@@ -74,31 +85,52 @@ export default function FishPage() {
         </div>
       )}
 
-      {/* Profile Modal */}
-      <div className="fixed top-10 right-4 z-20">
-        <button className="mobile-menu-button" onClick={() => setIsProfileOpen(!isProfileOpen)}>👤</button>
+      {/* Profile Icon */}
+      <div className="fixed top-10 right-4 z-50">
+        <button
+          className="mobile-menu-button"
+          onClick={() => setIsProfileOpen(true)}
+        >
+          👤
+        </button>
       </div>
 
+      {/* Profile Modal */}
       {isProfileOpen && (
         <div className="profile-modal">
           <div className="profile-modal-content">
             <h2>User Profile</h2>
             <p>Email: {user.email || 'N/A'}</p>
-            <p>Name: {user.nickname}</p>
-            <button className="close-btn" onClick={() => setIsProfileOpen(false)}>Close</button>
+            <p>Name: {user.nickname || 'GUEST'}</p>
+
+            <div className="flex justify-end mt-4">
+              {/* Placeholder buttons for login/signup */}
+              <button
+                className="login-btn"
+                onClick={() => alert('Login flow placeholder')}
+              >
+                Login
+              </button>
+              <button
+                className="close-btn"
+                onClick={() => setIsProfileOpen(false)}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Species Grid */}
-      <div className="species-grid p-4">
+      <div className="species-grid mt-16">
         {filteredSpecies.sort((a, b) => a.name.localeCompare(b.name)).map(fish => {
-          const isUnlocked = unlocked.includes(fish.species_id)
+          const isUnlocked = unlocked.includes(fish.id)
           return (
             <div
-              key={fish.species_id}
+              key={fish.id}
               className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}
-              onClick={() => toggleUnlock(fish.species_id)}
+              onClick={() => toggleUnlock(fish.id)}
             >
               <img src={fish.image_url} alt={fish.name} />
               <h2 className="font-bold text-center">{fish.name}</h2>
