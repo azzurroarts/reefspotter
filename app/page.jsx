@@ -55,30 +55,30 @@ export default function FishPage() {
         <div className="absolute top-0 right-2 font-bold text-black">{progress}%</div>
       </div>
 
-      {/* Filter button */}
-      <div className="fixed top-10 right-16 z-50">
-        <button
-          className="mobile-menu-button"
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-        >
-          Filter 🐠
-        </button>
-      </div>
+      {/* Filter button (top-right) */}
+<div className="fixed top-10 right-16 z-50">
+  <button
+    className="mobile-menu-button"
+    onClick={() => setIsFilterOpen(!isFilterOpen)}
+  >
+    🐟 Filter
+  </button>
+</div>
 
-      {/* Filter dropdown */}
-      {isFilterOpen && (
-        <div className="mobile-menu fixed top-16 right-16 z-50">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="w-full"
-          >
-            <option value="All Species">All Species</option>
-            <option value="GBR">Great Barrier Reef (GBR)</option>
-            <option value="GSR">Great Southern Reef (GSR)</option>
-          </select>
-        </div>
-      )}
+{/* Filter dropdown */}
+{isFilterOpen && (
+  <div className="mobile-menu fixed top-16 right-16 z-50">
+    <select
+      value={filter}
+      onChange={(e) => setFilter(e.target.value)}
+      className="w-full"
+    >
+      <option value="All Species">All Species</option>
+      <option value="GBR">Great Barrier Reef (GBR)</option>
+      <option value="GSR">Great Southern Reef (GSR)</option>
+    </select>
+  </div>
+)}
 
       {/* Profile Icon */}
       <div className="fixed top-10 right-4 z-50">
