@@ -54,50 +54,50 @@ export default function FishPage() {
     : 0
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white">
+    <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-4">
       {/* Page Title */}
-      <h1 className="absolute top-4 left-4 text-white text-3xl font-bold lowercase z-50">
+      <h1 className="text-white text-4xl md:text-5xl font-bold lowercase mb-6">
         reefspotter
       </h1>
 
+      {/* Top-left buttons side by side, larger */}
+      <div className="flex gap-6 mb-4">
+        <button
+          onClick={() => setIsProfileOpen(!isProfileOpen)}
+          className="p-8 md:p-10 bg-white text-black border-2 border-black rounded-full shadow-md text-3xl md:text-4xl focus:outline-none"
+        >
+          👤
+        </button>
+        <button
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
+          className="p-8 md:p-10 bg-white text-black border-2 border-black rounded-full shadow-md text-3xl md:text-4xl focus:outline-none"
+        >
+          🐟
+        </button>
+      </div>
+
+      {/* Filter Dropdown (below buttons, left-aligned) */}
+      {isFilterOpen && (
+        <div className="bg-white border-2 border-black rounded-md p-4 w-64 mt-2 z-50">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md w-full"
+          >
+            <option value="All Species">All Species</option>
+            <option value="GBR">Great Barrier Reef (GBR)</option>
+            <option value="GSR">Great Southern Reef (GSR)</option>
+          </select>
+        </div>
+      )}
+
       {/* Progress Bar */}
-      <div className="progress-container">
+      <div className="progress-container mt-4">
         <div
           className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500"
           style={{ width: `${progressPercentage}%` }}
         />
         <div className="absolute top-0 right-2 text-black font-bold">{progressPercentage}%</div>
-      </div>
-
-      {/* Top-left buttons side by side */}
-      <div className="absolute top-16 left-4 z-50 flex gap-4">
-        <button
-          onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className="p-6 bg-white text-black border-2 border-black rounded-full shadow-md text-2xl focus:outline-none"
-        >
-          👤
-        </button>
-        <div className="relative">
-          <button
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="p-6 bg-white text-black border-2 border-black rounded-full shadow-md text-2xl focus:outline-none"
-          >
-            🐟
-          </button>
-          {isFilterOpen && (
-            <div className="absolute top-0 left-full ml-2 bg-white border-2 border-black rounded-md p-3 z-50">
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md w-full"
-              >
-                <option value="All Species">All Species</option>
-                <option value="GBR">Great Barrier Reef (GBR)</option>
-                <option value="GSR">Great Southern Reef (GSR)</option>
-              </select>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Profile Modal */}
@@ -123,7 +123,7 @@ export default function FishPage() {
       )}
 
       {/* Species Cards */}
-      <div className="species-grid p-4">
+      <div className="species-grid mt-8">
         {filteredSpecies
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((fish) => {
