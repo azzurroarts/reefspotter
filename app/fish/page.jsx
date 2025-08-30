@@ -7,10 +7,11 @@ export default function FishPage() {
   const [species, setSpecies] = useState([])
   const [unlocked, setUnlocked] = useState([])
   const [filter, setFilter] = useState('All Species')
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [user, setUser] = useState({ id: 'guest', email: null, nickname: 'GUEST' })
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [user, setUser] = useState(null) // guest by default
 
+  // Fetch all species
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
@@ -19,125 +20,133 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
+  // Fetch unlocked species for current user
   useEffect(() => {
-    if (user.id === 'guest') return
+    if (!user) return
     const fetchUnlocked = async () => {
       const { data } = await supabase.from('sightings').select('species_id').eq('user_id', user.id)
-      if (data) setUnlocked(data.map(d => d.species_id))
+      if (data) setUnlocked(data.map((d) => d.species_id))
     }
     fetchUnlocked()
   }, [user])
 
-  const toggleUnlock = (speciesId) => {
+  const toggleUnlock = async (speciesId) => {
+    if (!user) return
+
     if (unlocked.includes(speciesId)) {
+      await supabase.from('sightings').delete().eq('user_id', user.id).eq('species_id', speciesId)
       setUnlocked(unlocked.filter(id => id !== speciesId))
     } else {
+      await supabase.from('sightings').insert({ user_id: user.id, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
     }
   }
 
-  const filteredSpecies = species.filter(fish => {
+  // Filter species based on location
+  const filteredSpecies = species.filter((fish) => {
     if (filter === 'All Species') return true
     if (!fish.location) return true
     return fish.location === filter
   })
 
-  const progress = filteredSpecies.length > 0 ? Math.round((unlocked.length / filteredSpecies.length) * 100) : 0
+  const progressPercentage = filteredSpecies.length
+    ? Math.round((unlocked.length / filteredSpecies.length) * 100)
+    : 0
 
   return (
-    <div className="relative min-h-screen p-4 bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div className="relative">
       {/* Progress Bar */}
       <div className="progress-container">
         <div
-          className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-400 to-blue-500"
-          style={{ width: `${progress}%` }}
-        ></div>
-        <div className="absolute top-0 right-2 font-bold text-black">{progress}%</div>
+          className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500"
+          style={{ width: `${progressPercentage}%` }}
+        />
+        <div className="absolute top-0 right-2 text-black font-bold">{progressPercentage}%</div>
       </div>
 
-     {/* Filter button (top-right) */}
-<div className="fixed top-10 right-0 z-50">
-  <button
-    className="mobile-menu-button"
-    onClick={() => setIsFilterOpen(!isFilterOpen)}
-  >
-    🐟
-  </button>
-</div>
-
-{/* Filter dropdown */}
-{isFilterOpen && (
-  <div className="mobile-menu fixed top-16 right-0 z-50">
-    <select
-      value={filter}
-      onChange={(e) => setFilter(e.target.value)}
-      className="w-full"
-    >
-      <option value="All Species">All Species</option>
-      <option value="GBR">Great Barrier Reef (GBR)</option>
-      <option value="GSR">Great Southern Reef (GSR)</option>
-    </select>
-  </div>
-)}
-
-      {/* Profile Icon */}
-      <div className="fixed top-10 right-4 z-50">
+      {/* Left-side stacked buttons */}
+      <div className="fixed top-10 left-4 z-50 flex flex-col gap-4">
+        {/* Profile button */}
         <button
-          className="mobile-menu-button"
-          onClick={() => setIsProfileOpen(true)}
+          onClick={() => setIsProfileOpen(!isProfileOpen)}
+          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md focus:outline-none"
         >
           👤
         </button>
+
+        {/* Filter button */}
+        <button
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
+          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md focus:outline-none"
+        >
+          🐟
+        </button>
       </div>
+
+      {/* Filter dropdown */}
+      {isFilterOpen && (
+        <div className="fixed top-24 left-4 z-50 bg-white border-2 border-black rounded-md p-3">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md w-full"
+          >
+            <option value="All Species">All Species</option>
+            <option value="GBR">Great Barrier Reef (GBR)</option>
+            <option value="GSR">Great Southern Reef (GSR)</option>
+          </select>
+        </div>
+      )}
 
       {/* Profile Modal */}
       {isProfileOpen && (
         <div className="profile-modal">
-          <div className="profile-modal-content text-black">
-            <h2>User Profile</h2>
-            <p>Email: {user.email || 'N/A'}</p>
-            <p>Name: {user.nickname || 'GUEST'}</p>
-
-            <div className="flex justify-end mt-4 gap-2">
+          <div className="profile-modal-content">
+            <h2 className="text-black">User Profile</h2>
+            <p className="text-black">Email: {user?.email || 'N/A'}</p>
+            <p className="text-black">Name: {user?.user_metadata?.nickname || 'GUEST'}</p>
+            <div className="flex gap-2 mt-4">
               <button
                 className="login-btn"
-                onClick={() => alert('Login modal placeholder')}
+                onClick={() => alert('Login flow placeholder')}
               >
-                Login
+                LOGIN
               </button>
               <button
                 className="login-btn"
-                onClick={() => alert('Signup modal placeholder')}
+                onClick={() => alert('Signup flow placeholder')}
               >
-                Signup
-              </button>
-              <button
-                className="close-btn"
-                onClick={() => setIsProfileOpen(false)}
-              >
-                Close
+                SIGNUP
               </button>
             </div>
+            <button
+              className="close-btn mt-4"
+              onClick={() => setIsProfileOpen(false)}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
 
-      {/* Species Grid */}
-      <div className="species-grid mt-16">
-        {filteredSpecies.sort((a, b) => a.name.localeCompare(b.name)).map(fish => {
-          const isUnlocked = unlocked.includes(fish.id)
-          return (
-            <div
-              key={fish.id}
-              className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}
-              onClick={() => toggleUnlock(fish.id)}
-            >
-              <img src={fish.image_url} alt={fish.name} />
-              <h2 className="font-bold text-center">{fish.name}</h2>
-              <p className="text-sm italic text-center">{fish.scientific_name}</p>
-            </div>
-          )
-        })}
+      {/* Species Cards */}
+      <div className="species-grid p-4">
+        {filteredSpecies
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((fish) => {
+            const isUnlocked = unlocked.includes(fish.id)
+            return (
+              <div
+                key={fish.id}
+                onClick={() => toggleUnlock(fish.id)}
+                className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}
+              >
+                <img src={fish.image_url} alt={fish.name} />
+                <h2 className="font-bold text-center">{fish.name}</h2>
+                <p className="text-sm italic text-center">{fish.scientific_name}</p>
+              </div>
+            )
+          })}
       </div>
     </div>
   )
