@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
+import Image from 'next/image'
+
 
 export default function FishPage() {
   const [species, setSpecies] = useState([])
@@ -105,26 +107,33 @@ export default function FishPage() {
           </div>
         </div>
       )}
+{/* Species Cards */}
+<div className="species-grid mt-8">
+  {filteredSpecies
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((fish) => {
+      const isUnlocked = unlocked.includes(fish.id)
+      return (
+        <div
+          key={fish.id}
+          onClick={() => toggleUnlock(fish.id)}
+          className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}
+        >
+          <Image
+            src={fish.image_url}
+            alt={fish.name}
+            width={300}
+            height={300}
+            style={{ objectFit: 'cover' }}
+            priority
+          />
+          <h2 className="font-bold text-center">{fish.name}</h2>
+          <p className="text-sm italic text-center">{fish.scientific_name}</p>
+        </div>
+      )
+    })}
+</div>
 
-      {/* Species Cards */}
-      <div className="species-grid mt-8">
-        {filteredSpecies
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .map((fish) => {
-            const isUnlocked = unlocked.includes(fish.id)
-            return (
-              <div
-                key={fish.id}
-                onClick={() => toggleUnlock(fish.id)}
-                className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}
-              >
-                <img src={fish.image_url} alt={fish.name} />
-                <h2 className="font-bold text-center">{fish.name}</h2>
-                <p className="text-sm italic text-center">{fish.scientific_name}</p>
-              </div>
-            )
-          })}
-      </div>
     </div>
   )
 }
