@@ -256,12 +256,12 @@ html, body {
 @media (max-width: 767px) {
   .progress-container {
     position: fixed;
-    top: 11rem; /* slightly below sticky buttons (adjust as needed) */
+    top: 7rem; /* slightly below sticky buttons (adjust as needed) */
     left: 50%;  /* center horizontally */
     transform: translateX(-50%);
-    width: 80%;  /* fills most of the screen */
+    width: 90%;  /* fills most of the screen */
     max-width: none;
-    height: 1.5rem;
+    height: 2rem;
     z-index: 10;
   }
   .progress-bar {
