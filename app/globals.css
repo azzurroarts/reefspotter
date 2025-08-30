@@ -252,15 +252,15 @@ html, body {
   font-weight: bold;
 }
 
-/* Mobile Progress Bar */
+/* Mobile Progress Bar: centered below sticky buttons */
 @media (max-width: 767px) {
   .progress-container {
     position: fixed;
-    top: 5.5rem; /* vertically aligned with sticky buttons */
-    right: 1rem; /* hug the right side */
-    left: auto;  /* override center */
-    width: calc(100% - 6.5rem); /* fill space to the right of buttons (6.5rem = approx button width + gap) */
-    max-width: none; 
+    top: 11rem; /* slightly below sticky buttons (adjust as needed) */
+    left: 50%;  /* center horizontally */
+    transform: translateX(-50%);
+    width: 80%;  /* fills most of the screen */
+    max-width: none;
     height: 1.5rem;
     z-index: 10;
   }
@@ -269,4 +269,3 @@ html, body {
     border-radius: 12px;
   }
 }
-
