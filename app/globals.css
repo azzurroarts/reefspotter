@@ -65,7 +65,6 @@ html, body {
   width: 100%;
   font-size: 1rem;
 }
-
 /* Species Cards */
 .species-grid {
   display: grid;
@@ -73,7 +72,6 @@ html, body {
   gap: 1rem;
   margin-top: 4rem;
 }
-
 @media(min-width: 768px) {
   .species-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -89,21 +87,13 @@ html, body {
   flex-direction: column;
   align-items: center;
   transition: all 0.3s ease;
-  padding: 0.25rem; /* optional tiny padding for breathing room */
 }
 
 .species-card img {
   width: 100%;
   aspect-ratio: 1/1;
-  object-fit: cover; /* desktop behavior */
+  object-fit: cover; /* desktop: crop to fill */
   transition: all 0.3s ease;
-}
-
-/* Mobile tweak: make images fit within the card without cropping */
-@media (max-width: 767px) {
-  .species-card img {
-    object-fit: contain;
-  }
 }
 
 .species-card.unlocked {
@@ -122,6 +112,24 @@ html, body {
 .species-card:hover {
   transform: scale(1.03);
 }
+
+/* Mobile tweaks: full image, fade behind */
+@media (max-width: 767px) {
+  .species-card {
+    background: linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+    padding: 0.5rem; /* fade buffer */
+    border-radius: 12px;
+  }
+
+  .species-card img {
+    object-fit: contain; /* ensures whole fish fits */
+    border-radius: 8px;  /* rounded edges on mobile */
+    width: 100%;
+    height: auto;        /* preserve aspect ratio */
+  }
+}
+
+
 
 /* Profile Modal */
 .profile-modal {
