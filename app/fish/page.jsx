@@ -45,26 +45,22 @@ export default function FishPage() {
   reefspotter
 </h1>
 
-
-      {/* Top-left buttons side by side, larger */}
-     <div className="sticky-buttons mb-4 relative">
-  {/* Buttons */}
+<div className="sticky-button-container">
   <button
     onClick={() => setIsProfileOpen(!isProfileOpen)}
-    className="p-6 md:p-8 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
+    className="sticky-button"
   >
     👤
   </button>
   <button
     onClick={() => setIsFilterOpen(!isFilterOpen)}
-    className="p-6 md:p-8 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
+    className="sticky-button"
   >
     🐟
   </button>
 
-  {/* Filter Dropdown */}
   {isFilterOpen && (
-    <div className="filter-dropdown mt-2">
+    <div className="filter-bubble">
       <select
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
@@ -76,6 +72,7 @@ export default function FishPage() {
     </div>
   )}
 </div>
+
 
 
       {/* Progress Bar */}

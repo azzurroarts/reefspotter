@@ -188,3 +188,64 @@ html, body {
   color: black;
   cursor: pointer;
 }
+
+/* STICKY BUTTONS + FILTER BUBBLE */
+.sticky-button-container {
+  position: sticky;
+  top: 1rem; /* distance from top of viewport */
+  display: flex;
+  gap: 1.5rem; /* space between buttons */
+  z-index: 50;
+}
+
+.sticky-button {
+  width: 6rem;       
+  height: 6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;  
+  border: 2px solid black;
+  border-radius: 9999px;
+  background-color: white;
+  color: black;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.sticky-button:hover {
+  transform: scale(1.05);
+}
+
+@media (min-width: 768px) {
+  .sticky-button {
+    width: 8rem;
+    height: 8rem;
+    font-size: 4rem;
+  }
+}
+
+.filter-bubble {
+  position: absolute;
+  top: 100%; /* below sticky buttons */
+  left: 0;   /* aligns with left of container */
+  margin-top: 0.5rem;
+  width: 18rem;
+  padding: 1rem;
+  border: 2px solid black;
+  border-radius: 1rem;
+  background-color: white;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  z-index: 40;
+}
+
+.filter-bubble select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid black;
+  border-radius: 9999px;
+  background-color: white;
+  color: black;
+  font-weight: bold;
+}
