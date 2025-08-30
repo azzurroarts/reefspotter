@@ -163,7 +163,7 @@ html, body {
 
 .sticky-buttons {
   position: sticky;
-  top: 5.5rem; /* pushed down further so it won’t overlap title */
+  top: 4rem; /* pushed down further so it won’t overlap title */
   display: flex;
   gap: 1.5rem;
   z-index: 20;
