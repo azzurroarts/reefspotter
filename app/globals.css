@@ -65,6 +65,7 @@ html, body {
   width: 100%;
   font-size: 1rem;
 }
+
 /* Species Cards */
 .species-grid {
   display: grid;
@@ -87,23 +88,24 @@ html, body {
   flex-direction: column;
   align-items: center;
   transition: all 0.3s ease;
+  background: linear-gradient(to bottom, rgba(55,55,55,0.9), rgba(30,30,30,0.9)); /* dark fade for all screens */
+  padding: 0.5rem; /* small buffer for fade */
 }
 
 .species-card img {
   width: 100%;
   aspect-ratio: 1/1;
-  object-fit: cover; /* desktop: crop to fill */
+  object-fit: cover; /* desktop: crop to fill nicely */
+  border-radius: 8px;
   transition: all 0.3s ease;
 }
 
 .species-card.unlocked {
-  background-color: #ffffff;
-  color: #000000;
+  color: #ffffff;
   transform: scale(1);
 }
 
 .species-card.locked {
-  background-color: #000000;
   color: #ffffff;
   transform: scale(0.95);
   filter: grayscale(100%);
@@ -113,19 +115,12 @@ html, body {
   transform: scale(1.03);
 }
 
-/* Mobile tweaks: full image, fade behind */
+/* Mobile tweaks: show full fish inside card */
 @media (max-width: 767px) {
-  .species-card {
-    background: linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
-    padding: 0.5rem; /* fade buffer */
-    border-radius: 12px;
-  }
-
   .species-card img {
-    object-fit: contain; /* ensures whole fish fits */
-    border-radius: 8px;  /* rounded edges on mobile */
+    object-fit: contain; /* ensures entire fish fits */
     width: 100%;
-    height: auto;        /* preserve aspect ratio */
+    height: auto;
   }
 }
 
