@@ -31,14 +31,15 @@ export default function FishPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
 
-  // Fetch all species
+// Fetch all species
 useEffect(() => {
   const fetchSpecies = async () => {
-    const { data } = await supabase.from<Species, Species>('species').select('*')
+    const { data } = await supabase.from<'species', Species>('species').select('*')
     if (data) setSpecies(data)
   }
   fetchSpecies()
 }, [])
+
 
 
   // Fetch unlocked species for current user
