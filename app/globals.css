@@ -88,14 +88,14 @@ html, body {
   flex-direction: column;
   align-items: center;
   transition: all 0.3s ease;
-  background: linear-gradient(to bottom, rgba(55,55,55,0.9), rgba(30,30,30,0.9)); /* dark fade for all screens */
-  padding: 0.5rem; /* small buffer for fade */
+  background: linear-gradient(to bottom, rgba(55,55,55,0.9), rgba(30,30,30,0.9)); /* dark fade */
+  padding: 0.5rem;
 }
 
 .species-card img {
   width: 100%;
   aspect-ratio: 1/1;
-  object-fit: cover; /* desktop: crop to fill nicely */
+  object-fit: cover; /* desktop: crop nicely */
   border-radius: 8px;
   transition: all 0.3s ease;
 }
@@ -103,6 +103,8 @@ html, body {
 .species-card.unlocked {
   color: #ffffff;
   transform: scale(1);
+  border: 3px solid #ffffff; /* white highlight for spotted fish */
+  box-shadow: 0 0 12px rgba(255,255,255,0.7); /* subtle glow */
 }
 
 .species-card.locked {
