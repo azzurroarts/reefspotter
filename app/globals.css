@@ -186,7 +186,7 @@ html, body {
 
 .sticky-buttons {
   position: sticky;
-  top: 4rem; /* pushed down further so it won’t overlap title */
+  top: 2.5rem; /* pushed down further so it won’t overlap title */
   display: flex;
   gap: 1.5rem;
   z-index: 20;
@@ -201,8 +201,8 @@ html, body {
 }
 
 .sticky-button {
-  width: 3rem;       /* was 4rem – made smaller */
-  height: 3rem;      /* was 4rem – made smaller */
+  width: 2rem;       /* was 4rem – made smaller */
+  height: 2rem;      /* was 4rem – made smaller */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -217,7 +217,7 @@ html, body {
 }
 
 .sticky-button:hover {
-  transform: scale(1.05);
+  transform: scale(1.3);
 }
 
 @media (min-width: 768px) {
@@ -233,7 +233,7 @@ html, body {
   top: 100%; /* below sticky buttons */
   left: 0;   /* aligns with left of container */
   margin-top: 0.5rem;
-  width: 18rem;
+  width: 13rem;
   padding: 1rem;
   border: 2px solid black;
   border-radius: 1rem;
