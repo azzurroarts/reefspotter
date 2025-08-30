@@ -168,7 +168,6 @@ html, body {
   gap: 1.5rem;
   z-index: 20;
 }
-
 /* Sticky Buttons + Filter Bubble */
 .sticky-button-container {
   position: sticky;
@@ -179,12 +178,12 @@ html, body {
 }
 
 .sticky-button {
-  width: 4rem;       /* smaller: about 2/3 previous size */
-  height: 4rem;
+  width: 3rem;       /* was 4rem – made smaller */
+  height: 3rem;      /* was 4rem – made smaller */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;   /* smaller emoji size */
+  font-size: 1.5rem;   /* was 2rem – made smaller */
   border: 2px solid black;
   border-radius: 9999px;
   background-color: white;
@@ -200,9 +199,9 @@ html, body {
 
 @media (min-width: 768px) {
   .sticky-button {
-    width: 5.5rem;  /* smaller desktop size */
-    height: 5.5rem;
-    font-size: 2.75rem;
+    width: 4rem;      /* was 5.5rem – smaller on desktop */
+    height: 4rem;     /* was 5.5rem – smaller on desktop */
+    font-size: 2rem;  /* was 2.75rem – smaller emoji */
   }
 }
 
