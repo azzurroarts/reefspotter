@@ -46,40 +46,28 @@ export default function FishPage() {
 </h1>
 
 
-  {/* Sticky Top Bar: Title + Buttons + Filter Dropdown */}
-<div className="sticky top-0 left-0 right-0 bg-transparent z-50 p-4 flex flex-col md:flex-row md:items-center md:justify-start gap-4">
+      {/* Top-left buttons side by side, larger */}
+     <div className="sticky-buttons mb-4 relative">
+  {/* Buttons */}
+  <button
+    onClick={() => setIsProfileOpen(!isProfileOpen)}
+    className="p-6 md:p-8 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
+  >
+    👤
+  </button>
+  <button
+    onClick={() => setIsFilterOpen(!isFilterOpen)}
+    className="p-6 md:p-8 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
+  >
+    🐟
+  </button>
 
-  {/* Page Title */}
-  <h1 className="text-white text-4xl md:text-5xl font-bold lowercase mb-4 md:mb-0">
-    reefspotter
-  </h1>
-
-  {/* Buttons Container */}
-  <div className="flex gap-6">
-    {/* Profile Button */}
-    <button
-      onClick={() => setIsProfileOpen(!isProfileOpen)}
-      className="p-8 md:p-10 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
-    >
-      👤
-    </button>
-
-    {/* Fish Filter Button */}
-    <button
-      onClick={() => setIsFilterOpen(!isFilterOpen)}
-      className="p-8 md:p-10 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
-    >
-      🐟
-    </button>
-  </div>
-
-  {/* Filter Dropdown Bubble */}
+  {/* Filter Dropdown */}
   {isFilterOpen && (
-    <div className="absolute mt-2 bg-white border-2 border-black rounded-xl p-4 w-72 shadow-lg left-0">
+    <div className="filter-dropdown mt-2">
       <select
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
-        className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md w-full"
       >
         <option value="All Species">All Species</option>
         <option value="GBR">Great Barrier Reef (GBR)</option>
@@ -88,7 +76,6 @@ export default function FishPage() {
     </div>
   )}
 </div>
-
 
 
       {/* Progress Bar */}

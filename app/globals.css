@@ -166,12 +166,6 @@ html, body {
   gap: 1.5rem;
   z-index: 20;
 }
-/* Extra emphasis on sticky emoji buttons */
-.sticky-button:hover {
-  transform: scale(1.1);
-  transition: transform 0.2s ease-in-out;
-}
-
 .filter-dropdown {
   position: absolute; /* so it hovers relative to buttons */
   top: 100%;          /* directly below buttons */
