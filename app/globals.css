@@ -171,7 +171,7 @@ html, body {
 /* Sticky Buttons + Filter Bubble */
 .sticky-button-container {
   position: sticky;
-  top: 5.5rem; /* synced with sticky-buttons */
+  top: 4rem; /* synced with sticky-buttons */
   display: flex;
   gap: 1.5rem;
   z-index: 50;
