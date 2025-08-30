@@ -19,26 +19,11 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
-  useEffect(() => {
-    if (!user) return
-    const fetchUnlocked = async () => {
-      const { data } = await supabase
-        .from('sightings')
-        .select('species_id')
-        .eq('user_id', user.id)
-      if (data) setUnlocked(data.map((d) => d.species_id))
-    }
-    fetchUnlocked()
-  }, [user])
-
-  const toggleUnlock = async (speciesId) => {
-    if (!user) return
-
+  // Guest-based unlocked logic
+  const toggleUnlock = (speciesId) => {
     if (unlocked.includes(speciesId)) {
-      await supabase.from('sightings').delete().eq('user_id', user.id).eq('species_id', speciesId)
       setUnlocked(unlocked.filter((id) => id !== speciesId))
     } else {
-      await supabase.from('sightings').insert({ user_id: user.id, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
     }
   }
@@ -64,13 +49,13 @@ export default function FishPage() {
       <div className="flex gap-6 mb-4">
         <button
           onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className="p-8 md:p-10 bg-white text-black border-2 border-black rounded-full shadow-md text-3xl md:text-4xl focus:outline-none"
+          className="p-6 md:p-8 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
         >
           👤
         </button>
         <button
           onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="p-8 md:p-10 bg-white text-black border-2 border-black rounded-full shadow-md text-3xl md:text-4xl focus:outline-none"
+          className="p-6 md:p-8 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
         >
           🐟
         </button>
@@ -78,7 +63,7 @@ export default function FishPage() {
 
       {/* Filter Dropdown (below buttons, left-aligned) */}
       {isFilterOpen && (
-        <div className="bg-white border-2 border-black rounded-md p-4 w-64 mt-2 z-50">
+        <div className="bg-white border-2 border-black rounded-xl p-4 w-72 mt-2 z-50 shadow-lg">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -92,7 +77,7 @@ export default function FishPage() {
       )}
 
       {/* Progress Bar */}
-      <div className="progress-container mt-4">
+      <div className="progress-container mt-4 relative">
         <div
           className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500"
           style={{ width: `${progressPercentage}%` }}
@@ -106,12 +91,12 @@ export default function FishPage() {
           <div className="profile-modal-content">
             <h2 className="text-black">User Profile</h2>
             <p className="text-black">Email: {user?.email || 'N/A'}</p>
-            <p className="text-black">Name: {user?.user_metadata?.nickname || 'GUEST'}</p>
+            <p className="text-black">Name: {user?.nickname || 'GUEST'}</p>
             <div className="flex gap-2 mt-4">
-              <button className="login-btn" onClick={() => alert('Login flow placeholder')}>
+              <button className="login-btn" onClick={() => alert('Login placeholder')}>
                 LOGIN
               </button>
-              <button className="login-btn" onClick={() => alert('Signup flow placeholder')}>
+              <button className="login-btn" onClick={() => alert('Signup placeholder')}>
                 SIGNUP
               </button>
             </div>
