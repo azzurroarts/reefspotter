@@ -55,14 +55,15 @@ export default function FishPage() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-4">
-
+      
       {/* Sticky Header */}
-      <div className="sticky top-4 z-40 bg-transparent">
+      <div className="sticky top-0 z-50 bg-transparent">
+        {/* Reefspotter title */}
         <h1 className="text-white text-4xl md:text-5xl font-bold lowercase mb-4">
           reefspotter
         </h1>
 
-        {/* Buttons side by side, larger */}
+        {/* Buttons side by side */}
         <div className="flex gap-6 mb-4">
           <button
             onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -78,7 +79,7 @@ export default function FishPage() {
           </button>
         </div>
 
-        {/* Filter Dropdown */}
+        {/* Filter Modal */}
         {isFilterOpen && (
           <div className="bg-white border-2 border-black rounded-xl p-4 w-72 mt-2 z-50 shadow-lg">
             <select
@@ -95,12 +96,14 @@ export default function FishPage() {
       </div>
 
       {/* Progress Bar */}
-      <div className="progress-container mt-4">
+      <div className="progress-container mt-4 relative">
         <div
           className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500"
           style={{ width: `${progressPercentage}%` }}
         />
-        <div className="absolute top-0 right-2 text-black font-bold">{progressPercentage}%</div>
+        <div className="absolute top-0 right-2 sm:right-4 text-black font-bold">
+          {progressPercentage}%
+        </div>
       </div>
 
       {/* Profile Modal */}
