@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
+import { useRouter } from 'next/navigation'
 
 type SupabaseUser = {
   id: string
   email: string | null
   user_metadata: {
-    full_name: string
-    nickname: string
-    favourite_fish: string
-    location: string
-    profile_image: string
+    full_name?: string
+    nickname?: string
+    favourite_fish?: string
+    location?: string
+    profile_image?: string
   }
 }
 
@@ -26,31 +27,30 @@ type Species = {
 export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
-  const [user] = useState<SupabaseUser | null>(null) // local mode: no login first
+  const [user, setUser] = useState<SupabaseUser | null>(null)
   const [filter, setFilter] = useState<string>('All Species')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const router = useRouter()
 
-// Fetch all species
-useEffect(() => {
-  const fetchSpecies = async () => {
-    const { data } = await supabase.from<'species', Species>('species').select('*')
-    if (data) setSpecies(data)
-  }
-  fetchSpecies()
-}, [])
+  // Optional: fetch user if you want Supabase auth
+  // Currently page works locally with guest mode
 
+  // Fetch species
+  useEffect(() => {
+    const fetchSpecies = async () => {
+      const { data } = await supabase.from<Species, Species>('species').select('*')
+      if (data) setSpecies(data)
+    }
+    fetchSpecies()
+  }, [])
 
-
-  // Fetch unlocked species for current user
+  // Fetch unlocked sightings
   useEffect(() => {
     if (!user) return
     const fetchUnlocked = async () => {
-      const { data } = await supabase
-        .from<{ species_id: number }>('sightings')
-        .select('species_id')
-        .eq('user_id', user.id)
-      if (data) setUnlocked(data.map(d => d.species_id))
+      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', user.id)
+      if (data) setUnlocked((data as { species_id: number }[]).map(d => d.species_id))
     }
     fetchUnlocked()
   }, [user])
@@ -68,11 +68,13 @@ useEffect(() => {
 
   const filteredSpecies = species.filter(fish => {
     if (filter === 'All Species') return true
-    if (fish.location === null) return true
+    if (!fish.location) return true
     return fish.location === filter
   })
 
-  const progressPercentage = filteredSpecies.length > 0 ? (unlocked.length / filteredSpecies.length) * 100 : 0
+  const progressPercentage = filteredSpecies.length
+    ? (unlocked.length / filteredSpecies.length) * 100
+    : 0
 
   return (
     <div className="relative">
@@ -85,17 +87,23 @@ useEffect(() => {
         <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
       </div>
 
-      {/* Mobile Hamburger Icon */}
-      <div className="md:hidden fixed top-10 right-4 z-20">
-        <button className="mobile-menu-button" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+      {/* Mobile Hamburger */}
+      <div className="fixed top-10 right-4 z-20 md:hidden">
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="mobile-menu-button"
+        >
           🐠
         </button>
       </div>
 
-      {/* Mobile Dropdown */}
       {isMobileMenuOpen && (
         <div className="mobile-menu">
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md appearance-none focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300 cursor-pointer"
+          >
             <option value="All Species">All Species</option>
             <option value="GBR">Great Barrier Reef (GBR)</option>
             <option value="GSR">Great Southern Reef (GSR)</option>
@@ -104,7 +112,7 @@ useEffect(() => {
       )}
 
       {/* Desktop Dropdown */}
-      <div className="hidden md:flex fixed top-10 right-4">
+      <div className="hidden md:flex fixed top-10 right-4 z-20">
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
@@ -118,7 +126,10 @@ useEffect(() => {
 
       {/* Profile Icon */}
       <div className="fixed top-10 left-4 z-20">
-        <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="mobile-menu-button">
+        <button
+          onClick={() => setIsProfileOpen(!isProfileOpen)}
+          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md focus:outline-none"
+        >
           👤
         </button>
       </div>
@@ -128,19 +139,15 @@ useEffect(() => {
         <div className="profile-modal">
           <div className="profile-modal-content">
             <h2>User Profile</h2>
-            <p>Email: {user?.email || 'Guest'}</p>
-            <p>Name: {user?.user_metadata.nickname || 'Guest'}</p>
-            <div className="flex justify-end mt-2">
-              <button onClick={() => setIsProfileOpen(false)} className="close-btn">
-                Close
-              </button>
-            </div>
+            <p>Email: {user?.email || 'GUEST'}</p>
+            <p>Name: {user?.user_metadata.nickname || 'GUEST'}</p>
+            <button className="close-btn" onClick={() => setIsProfileOpen(false)}>Close</button>
           </div>
         </div>
       )}
 
-      {/* Species Grid */}
-      <div className="species-grid p-4">
+      {/* Species Cards */}
+      <div className="species-grid">
         {filteredSpecies
           .sort((a, b) => a.name.localeCompare(b.name))
           .map(fish => {
@@ -152,8 +159,8 @@ useEffect(() => {
                 className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}
               >
                 <img src={fish.image_url} alt={fish.name} />
-                <h2 className="font-bold text-center mt-2">{fish.name}</h2>
-                <p className="text-sm italic text-center mb-2">{fish.scientific_name}</p>
+                <h2 className="font-bold text-center">{fish.name}</h2>
+                <p className="text-sm italic text-center">{fish.scientific_name}</p>
               </div>
             )
           })}
