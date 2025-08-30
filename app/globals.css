@@ -256,7 +256,7 @@ html, body {
 @media (max-width: 767px) {
   .progress-container {
     position: fixed;
-    top: 7rem; /* slightly below sticky buttons (adjust as needed) */
+    top: 8.5rem; /* slightly below sticky buttons (adjust as needed) */
     left: 50%;  /* center horizontally */
     transform: translateX(-50%);
     width: 90%;  /* fills most of the screen */
