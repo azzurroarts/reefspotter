@@ -132,48 +132,77 @@ html, body {
 }
 
 
-
 /* Profile Modal */
 .profile-modal {
   position: fixed;
   inset: 0;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.5); /* dim background */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 30;
 }
+
 .profile-modal-content {
   background-color: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  width: 33%;
+  padding: 2.5rem; /* more padding for spacious feel */
+  border-radius: 16px; /* more rounded */
+  width: 90%;
   max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* space between items */
+  color: #000; /* ensure all text is black */
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
+
 .profile-modal-content h2 {
   font-size: 2rem;
   font-weight: bold;
-  margin-bottom: 1rem;
-}
-.profile-modal-content p {
   margin-bottom: 0.5rem;
+  color: #000;
 }
-.profile-modal-content button {
+
+.profile-modal-content input {
+  padding: 0.75rem 1rem;
+  border: 2px solid #000;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: #000;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.profile-modal-content .login-btn,
+.profile-modal-content .signup-btn {
   padding: 0.75rem 1rem;
   border-radius: 12px;
   border: none;
   cursor: pointer;
   font-weight: 600;
+  font-size: 1rem;
+  flex: 1;
 }
-.profile-modal-content .close-btn {
-  background-color: #ef4444;
-  color: white;
-  margin-top: 1rem;
-}
+
 .profile-modal-content .login-btn {
   background-color: #22c55e;
   color: white;
-  margin-right: 0.5rem;
+}
+
+.profile-modal-content .signup-btn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.profile-modal-content .close-btn {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: none;
+  background-color: #ef4444;
+  color: white;
+  font-weight: 600;
+  margin-top: 1rem;
+  cursor: pointer;
 }
 
 /* Sticky Page Title */

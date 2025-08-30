@@ -5,19 +5,17 @@ import { supabase } from '@/lib/supabase-browser'
 
 export default function FishPage() {
   const [species, setSpecies] = useState([])
-  const [unlocked, setUnlocked] = useState([])
+  const [unlocked, setUnlocked] = useState([]) // guest or logged in
   const [filter, setFilter] = useState('All Species')
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [user, setUser] = useState(null) // guest by default
+  const [user, setUser] = useState(null) // Supabase user
 
-  // Auth modal fields
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [authError, setAuthError] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [nickname, setNickname] = useState('')
 
-  // Fetch species on mount
+  // Fetch species
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
@@ -26,7 +24,7 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
-  // Fetch unlocked species for logged-in user
+  // Fetch unlocked sightings for logged in users
   useEffect(() => {
     if (!user) return
     const fetchUnlocked = async () => {
@@ -39,11 +37,12 @@ export default function FishPage() {
     fetchUnlocked()
   }, [user])
 
-  // Toggle unlock for guest or logged-in user
+  // Toggle unlock for guest or logged in
   const toggleUnlock = async (speciesId) => {
     if (user) {
-      // Logged-in: update Supabase
-      if (unlocked.includes(speciesId)) {
+      // Logged in: sync to DB
+      const exists = unlocked.includes(speciesId)
+      if (exists) {
         await supabase
           .from('sightings')
           .delete()
@@ -51,13 +50,11 @@ export default function FishPage() {
           .eq('species_id', speciesId)
         setUnlocked(unlocked.filter((id) => id !== speciesId))
       } else {
-        await supabase
-          .from('sightings')
-          .insert({ user_id: user.id, species_id: speciesId })
+        await supabase.from('sightings').insert({ user_id: user.id, species_id: speciesId })
         setUnlocked([...unlocked, speciesId])
       }
     } else {
-      // Guest: update local state
+      // Guest
       if (unlocked.includes(speciesId)) {
         setUnlocked(unlocked.filter((id) => id !== speciesId))
       } else {
@@ -66,62 +63,49 @@ export default function FishPage() {
     }
   }
 
-  // Sync guest progress to Supabase after login/signup
-  const syncGuestProgress = async (newUser) => {
-    if (!newUser || !unlocked.length) return
-    const existing = await supabase
-      .from('sightings')
-      .select('species_id')
-      .eq('user_id', newUser.id)
-    const existingIds = existing.data?.map((d) => d.species_id) || []
+  // Signup
+  const handleSignup = async () => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { nickname } },
+    })
 
-    const newSightings = unlocked
-      .filter((id) => !existingIds.includes(id))
-      .map((species_id) => ({ user_id: newUser.id, species_id }))
+    if (error) return alert(error.message)
+    if (!data.user) return alert('Signup failed')
 
-    if (newSightings.length) {
-      await supabase.from('sightings').insert(newSightings)
-    }
+    setUser(data.user)
+
+    // Sync guest progress
+    const sync = unlocked.map(fishId =>
+      supabase.from('sightings').insert({ user_id: data.user.id, species_id: fishId })
+    )
+    await Promise.all(sync)
+    alert('Signed up and synced progress!')
   }
 
   // Login
   const handleLogin = async () => {
-    setIsLoading(true)
-    setAuthError(null)
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    setIsLoading(false)
-    if (error) {
-      setAuthError(error.message)
-    } else {
-      setUser(data.user)
-      await syncGuestProgress(data.user)
-      setIsProfileOpen(false)
-    }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) return alert(error.message)
+    if (!data.user) return alert('Login failed')
+
+    setUser(data.user)
+
+    // Sync guest progress
+    const existing = await supabase.from('sightings').select('species_id').eq('user_id', data.user.id)
+    const existingIds = existing.data.map(d => d.species_id)
+    const newIds = unlocked.filter(id => !existingIds.includes(id))
+
+    const sync = newIds.map(fishId =>
+      supabase.from('sightings').insert({ user_id: data.user.id, species_id: fishId })
+    )
+    await Promise.all(sync)
+    alert('Logged in and synced progress!')
   }
 
-  // Signup
-  const handleSignup = async () => {
-    setIsLoading(true)
-    setAuthError(null)
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-    setIsLoading(false)
-    if (error) {
-      setAuthError(error.message)
-    } else {
-      alert('Signup successful! Check your email to confirm your account.')
-      setUser(data.user)
-      await syncGuestProgress(data.user)
-      setIsProfileOpen(false)
-    }
-  }
-
-  const filteredSpecies = species.filter((fish) => {
+  // Filtered species
+  const filteredSpecies = species.filter(fish => {
     if (filter === 'All Species') return true
     if (!fish.location) return true
     return fish.location === filter
@@ -133,19 +117,16 @@ export default function FishPage() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-4">
+
       {/* Sticky Title */}
-      <h1 className="sticky-title text-white text-4xl md:text-5xl font-bold lowercase mb-6">
+      <h1 className="sticky-title text-white text-4xl md:text-5xl font-bold lowercase mb-4">
         reefspotter
       </h1>
 
-      {/* Sticky Buttons + Filter Bubble */}
+      {/* Sticky Buttons + Filter */}
       <div className="sticky-button-container">
-        <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="sticky-button">
-          👤
-        </button>
-        <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="sticky-button">
-          🐟
-        </button>
+        <button className="sticky-button" onClick={() => setIsProfileOpen(!isProfileOpen)}>👤</button>
+        <button className="sticky-button" onClick={() => setIsFilterOpen(!isFilterOpen)}>🐟</button>
 
         {isFilterOpen && (
           <div className="filter-bubble">
@@ -160,7 +141,7 @@ export default function FishPage() {
 
       {/* Progress Bar */}
       <div className="progress-container mt-4 relative">
-        <div className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500" style={{ width: `${progressPercentage}%` }} />
+        <div className="progress-bar" style={{ width: `${progressPercentage}%` }} />
         <div className="absolute top-0 right-2 text-black font-bold">{progressPercentage}%</div>
       </div>
 
@@ -168,59 +149,51 @@ export default function FishPage() {
       {isProfileOpen && (
         <div className="profile-modal">
           <div className="profile-modal-content">
-            <h2 className="text-black">User Profile</h2>
-            <p className="text-black">Email: {user?.email || 'N/A'}</p>
-            <p className="text-black">Name: {user?.nickname || 'GUEST'}</p>
-
-            <div className="flex flex-col gap-2 mt-4">
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="p-2 border-2 border-black rounded-md"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="p-2 border-2 border-black rounded-md"
-              />
-              {authError && <p className="text-red-600 font-bold">{authError}</p>}
-              <div className="flex gap-2">
-                <button onClick={handleLogin} className="login-btn bg-green-500 text-white p-2 rounded-md" disabled={isLoading}>
-                  {isLoading ? 'Logging in...' : 'LOGIN'}
-                </button>
-                <button onClick={handleSignup} className="login-btn bg-blue-500 text-white p-2 rounded-md" disabled={isLoading}>
-                  {isLoading ? 'Signing up...' : 'SIGNUP'}
-                </button>
-              </div>
+            <h2>User Profile</h2>
+            <input
+              className="p-2 border-2 border-black rounded mb-2 w-full"
+              placeholder="Nickname"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+            />
+            <input
+              className="p-2 border-2 border-black rounded mb-2 w-full"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              className="p-2 border-2 border-black rounded mb-4 w-full"
+              placeholder="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <button className="login-btn" onClick={handleLogin}>LOGIN</button>
+              <button className="login-btn" onClick={handleSignup}>SIGNUP</button>
             </div>
-
-            <button className="close-btn mt-4 bg-red-500 text-white p-2 rounded-md" onClick={() => setIsProfileOpen(false)}>Close</button>
+            <button className="close-btn mt-4" onClick={() => setIsProfileOpen(false)}>Close</button>
           </div>
         </div>
       )}
 
       {/* Species Cards */}
       <div className="species-grid mt-8">
-        {filteredSpecies
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .map((fish) => {
-            const isUnlocked = unlocked.includes(fish.id)
-            return (
-              <div
-                key={fish.id}
-                onClick={() => toggleUnlock(fish.id)}
-                className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}
-              >
-                <img src={fish.image_url} alt={fish.name} />
-                <h2 className="font-bold text-center">{fish.name}</h2>
-                <p className="text-sm italic text-center">{fish.scientific_name}</p>
-              </div>
-            )
-          })}
+        {filteredSpecies.sort((a, b) => a.name.localeCompare(b.name)).map(fish => {
+          const isUnlocked = unlocked.includes(fish.id)
+          return (
+            <div
+              key={fish.id}
+              onClick={() => toggleUnlock(fish.id)}
+              className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}
+            >
+              <img src={fish.image_url} alt={fish.name} />
+              <h2 className="font-bold text-center">{fish.name}</h2>
+              <p className="text-sm italic text-center">{fish.scientific_name}</p>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
