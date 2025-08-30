@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 
 type SupabaseUser = {
   id: string
-  email: string | null // Handle possibly null
+  email: string | null
   user_metadata: {
     full_name: string
     nickname: string
@@ -37,7 +37,7 @@ export default function FishPage() {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const router = useRouter()
 
-  // Get current logged-in user
+  // Fetch current logged-in user
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user: supaUser } } = await supabase.auth.getUser()
@@ -70,7 +70,7 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
-  // Fetch unlocked species for current user
+  // Fetch unlocked species
   useEffect(() => {
     if (!user) return
     const fetchUnlocked = async () => {
@@ -104,7 +104,7 @@ export default function FishPage() {
 
   return (
     <div className="relative">
-      {/* Progress Bar */}
+      {/* Thick Progress Bar */}
       <div className="fixed top-10 left-1/3 w-1/3 md:w-1/4 h-10 bg-gray-300 border border-black rounded-xl z-10">
         <div
           className="bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 h-full rounded-xl"
@@ -113,13 +113,13 @@ export default function FishPage() {
         <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
       </div>
 
-      {/* Mobile Hamburger Icon */}
+      {/* Mobile Hamburger for Location Filter */}
       <div className="fixed top-10 right-4 z-20 md:hidden">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md focus:outline-none"
         >
-          🐠
+          🍔
         </button>
       </div>
 
