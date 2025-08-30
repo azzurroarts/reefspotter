@@ -3,7 +3,19 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
-import type { User } from '@supabase/supabase-js' // ✅ CHANGE: use correct User type
+
+/* Local user shape — we map Supabase's user into this to avoid TS mismatches */
+type LocalUser = {
+  id: string
+  email: string | null
+  user_metadata: {
+    full_name: string | null
+    nickname: string | null
+    favourite_fish: string | null
+    location: string | null
+    profile_image: string | null
+  }
+}
 
 type Species = {
   id: number
@@ -16,37 +28,66 @@ type Species = {
 export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
-  const [user, setUser] = useState<User | null>(null) // ✅ CHANGE: use Supabase User type
+  const [user, setUser] = useState<LocalUser | null>(null) // now LocalUser
   const [filter, setFilter] = useState<string>('All Species')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userName, setUserName] = useState<string | null>(null)
   const router = useRouter()
 
-  // ✅ CHANGE: Get current logged-in user
+  // Fetch current logged-in user and map to LocalUser to avoid TS mismatch
   useEffect(() => {
     const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser()
+      try {
+        const { data, error } = await supabase.auth.getUser()
+        if (error) {
+          console.error('getUser error:', error)
+          router.push('/login')
+          return
+        }
 
-      if (error) {
-        console.error("Error fetching user:", error.message)
-        router.push('/login')
-        return
-      }
-
-      if (data.user) {
-        setUser(data.user) // ✅ should now type-check correctly
-      } else {
+        const sUser = data?.user ?? null
+        if (sUser) {
+          const mapped: LocalUser = {
+            id: sUser.id,
+            email: sUser.email ?? null,
+            user_metadata: {
+              full_name: sUser.user_metadata?.full_name ?? null,
+              nickname: sUser.user_metadata?.nickname ?? null,
+              favourite_fish: sUser.user_metadata?.favourite_fish ?? null,
+              location: sUser.user_metadata?.location ?? null,
+              profile_image: sUser.user_metadata?.profile_image ?? null,
+            },
+          }
+          setUser(mapped)
+          setUserEmail(mapped.email)
+          setUserName(mapped.user_metadata.full_name)
+        } else {
+          router.push('/login')
+        }
+      } catch (err) {
+        console.error('Unexpected error fetching user:', err)
         router.push('/login')
       }
     }
+
     fetchUser()
   }, [router])
 
   // Fetch all species
   useEffect(() => {
     const fetchSpecies = async () => {
-      const { data } = await supabase.from('species').select('*')
-      if (data) setSpecies(data)
+      try {
+        const { data, error } = await supabase.from('species').select('*')
+        if (error) {
+          console.error('fetchSpecies error:', error)
+          return
+        }
+        if (data) setSpecies(data as Species[])
+      } catch (err) {
+        console.error('Unexpected fetchSpecies error:', err)
+      }
     }
     fetchSpecies()
   }, [])
@@ -55,8 +96,22 @@ export default function FishPage() {
   useEffect(() => {
     if (!user) return
     const fetchUnlocked = async () => {
-      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', user.id)
-      if (data) setUnlocked(data.map(d => d.species_id))
+      try {
+        const { data, error } = await supabase
+          .from('sightings')
+          .select('species_id')
+          .eq('user_id', user.id)
+        if (error) {
+          console.error('fetchUnlocked error:', error)
+          return
+        }
+        if (data) {
+          // data likely an array of objects like { species_id: number }
+          setUnlocked((data as any[]).map((d) => d.species_id))
+        }
+      } catch (err) {
+        console.error('Unexpected fetchUnlocked error:', err)
+      }
     }
     fetchUnlocked()
   }, [user])
@@ -64,22 +119,42 @@ export default function FishPage() {
   const toggleUnlock = async (speciesId: number) => {
     if (!user) return
 
-    if (unlocked.includes(speciesId)) {
-      await supabase.from('sightings').delete().eq('user_id', user.id).eq('species_id', speciesId)
-      setUnlocked(unlocked.filter(id => id !== speciesId))
-    } else {
-      await supabase.from('sightings').insert({ user_id: user.id, species_id: speciesId })
-      setUnlocked([...unlocked, speciesId])
+    try {
+      if (unlocked.includes(speciesId)) {
+        const { error } = await supabase
+          .from('sightings')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('species_id', speciesId)
+        if (error) {
+          console.error('delete sighting error:', error)
+        } else {
+          setUnlocked((prev) => prev.filter((id) => id !== speciesId))
+        }
+      } else {
+        const { error } = await supabase
+          .from('sightings')
+          .insert({ user_id: user.id, species_id: speciesId })
+        if (error) {
+          console.error('insert sighting error:', error)
+        } else {
+          setUnlocked((prev) => [...prev, speciesId])
+        }
+      }
+    } catch (err) {
+      console.error('toggleUnlock unexpected error:', err)
     }
   }
 
+  // Filter species based on location
   const filteredSpecies = species.filter((fish) => {
     if (filter === 'All Species') return true
-    if (fish.location === null) return true
+    if (fish.location === null) return true // Show species with NULL location in both filters
     return fish.location === filter
   })
 
-  const progressPercentage = (unlocked.length / filteredSpecies.length) * 100
+  // guard against division by zero
+  const progressPercentage = filteredSpecies.length ? (unlocked.length / filteredSpecies.length) * 100 : 0
 
   return (
     <div className="relative">
@@ -87,14 +162,14 @@ export default function FishPage() {
       <div className="fixed top-10 left-1/3 w-1/3 md:w-1/4 h-10 bg-gray-300 border border-black rounded-xl z-10">
         <div
           className="bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 h-full rounded-xl"
-          style={{ width: `${progressPercentage}%` }}
+          style={{
+            width: `${progressPercentage}%`,
+          }}
         ></div>
-        <div className="absolute top-0 right-2 text-black font-bold">
-          {Math.round(progressPercentage)}%
-        </div>
+        <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
       </div>
 
-      {/* Mobile Hamburger Icon */}
+      {/* Mobile Hamburger Icon for Location Filter */}
       <div className="fixed top-10 right-4 z-20 md:hidden">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -147,8 +222,8 @@ export default function FishPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
           <div className="bg-white p-8 rounded-lg w-1/3">
             <h2 className="text-2xl font-bold mb-4">User Profile</h2>
-            <p className="mb-2">Email: {user.email ?? "No email"}</p>
-            <p className="mb-2">Name: {user.user_metadata?.nickname ?? "Unknown"}</p>
+            <p className="mb-2">Email: {user.email ?? 'No email'}</p>
+            <p className="mb-2">Name: {user.user_metadata?.nickname ?? 'Unknown'}</p>
             <button
               onClick={() => setIsProfileOpen(false)}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
@@ -163,7 +238,7 @@ export default function FishPage() {
       <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
         {filteredSpecies
           .sort((a, b) => a.name.localeCompare(b.name))
-          .map(fish => {
+          .map((fish) => {
             const isUnlocked = unlocked.includes(fish.id)
             return (
               <div

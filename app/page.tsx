@@ -4,6 +4,19 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
 
+/* Local user shape — we map Supabase's user into this to avoid TS mismatches */
+type LocalUser = {
+  id: string
+  email: string | null
+  user_metadata: {
+    full_name: string | null
+    nickname: string | null
+    favourite_fish: string | null
+    location: string | null
+    profile_image: string | null
+  }
+}
+
 type Species = {
   id: number
   name: string
@@ -15,61 +28,121 @@ type Species = {
 export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
-  const [userId, setUserId] = useState<string | null>(null)
-  const [loadingUser, setLoadingUser] = useState(true)
+  const [user, setUser] = useState<LocalUser | null>(null) // now LocalUser
   const [filter, setFilter] = useState<string>('All Species')
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false) // State to toggle mobile menu
-  const [isProfileOpen, setIsProfileOpen] = useState(false) // State for profile modal
-  const [userEmail, setUserEmail] = useState<string | null>(null) // To store user email
-  const [userName, setUserName] = useState<string | null>(null) // To store user name
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userName, setUserName] = useState<string | null>(null)
   const router = useRouter()
 
-  // Get current logged-in user
+  // Fetch current logged-in user and map to LocalUser to avoid TS mismatch
   useEffect(() => {
     const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) {
-        setUserId(user.id)
-        setUserEmail(user.email)
-        setUserName(user.user_metadata.full_name)
-      } else {
-        router.push('/login') // redirect if not logged in
+      try {
+        const { data, error } = await supabase.auth.getUser()
+        if (error) {
+          console.error('getUser error:', error)
+          router.push('/login')
+          return
+        }
+
+        const sUser = data?.user ?? null
+        if (sUser) {
+          const mapped: LocalUser = {
+            id: sUser.id,
+            email: sUser.email ?? null,
+            user_metadata: {
+              full_name: sUser.user_metadata?.full_name ?? null,
+              nickname: sUser.user_metadata?.nickname ?? null,
+              favourite_fish: sUser.user_metadata?.favourite_fish ?? null,
+              location: sUser.user_metadata?.location ?? null,
+              profile_image: sUser.user_metadata?.profile_image ?? null,
+            },
+          }
+          setUser(mapped)
+          setUserEmail(mapped.email)
+          setUserName(mapped.user_metadata.full_name)
+        } else {
+          router.push('/login')
+        }
+      } catch (err) {
+        console.error('Unexpected error fetching user:', err)
+        router.push('/login')
       }
-      setLoadingUser(false)
     }
+
     fetchUser()
   }, [router])
 
   // Fetch all species
   useEffect(() => {
     const fetchSpecies = async () => {
-      const { data } = await supabase.from('species').select('*')
-      if (data) setSpecies(data)
+      try {
+        const { data, error } = await supabase.from('species').select('*')
+        if (error) {
+          console.error('fetchSpecies error:', error)
+          return
+        }
+        if (data) setSpecies(data as Species[])
+      } catch (err) {
+        console.error('Unexpected fetchSpecies error:', err)
+      }
     }
     fetchSpecies()
   }, [])
 
   // Fetch unlocked species for current user
   useEffect(() => {
-    if (!userId) return
+    if (!user) return
     const fetchUnlocked = async () => {
-      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', userId)
-      if (data) setUnlocked(data.map(d => d.species_id))
+      try {
+        const { data, error } = await supabase
+          .from('sightings')
+          .select('species_id')
+          .eq('user_id', user.id)
+        if (error) {
+          console.error('fetchUnlocked error:', error)
+          return
+        }
+        if (data) {
+          // data likely an array of objects like { species_id: number }
+          setUnlocked((data as any[]).map((d) => d.species_id))
+        }
+      } catch (err) {
+        console.error('Unexpected fetchUnlocked error:', err)
+      }
     }
     fetchUnlocked()
-  }, [userId])
+  }, [user])
 
   const toggleUnlock = async (speciesId: number) => {
-    if (!userId) return
+    if (!user) return
 
-    if (unlocked.includes(speciesId)) {
-      await supabase.from('sightings').delete().eq('user_id', userId).eq('species_id', speciesId)
-      setUnlocked(unlocked.filter(id => id !== speciesId))
-    } else {
-      await supabase.from('sightings').insert({ user_id: userId, species_id: speciesId })
-      setUnlocked([...unlocked, speciesId])
+    try {
+      if (unlocked.includes(speciesId)) {
+        const { error } = await supabase
+          .from('sightings')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('species_id', speciesId)
+        if (error) {
+          console.error('delete sighting error:', error)
+        } else {
+          setUnlocked((prev) => prev.filter((id) => id !== speciesId))
+        }
+      } else {
+        const { error } = await supabase
+          .from('sightings')
+          .insert({ user_id: user.id, species_id: speciesId })
+        if (error) {
+          console.error('insert sighting error:', error)
+        } else {
+          setUnlocked((prev) => [...prev, speciesId])
+        }
+      }
+    } catch (err) {
+      console.error('toggleUnlock unexpected error:', err)
     }
   }
 
@@ -80,7 +153,8 @@ export default function FishPage() {
     return fish.location === filter
   })
 
-  const progressPercentage = (unlocked.length / filteredSpecies.length) * 100
+  // guard against division by zero
+  const progressPercentage = filteredSpecies.length ? (unlocked.length / filteredSpecies.length) * 100 : 0
 
   return (
     <div className="relative">
@@ -89,7 +163,7 @@ export default function FishPage() {
         <div
           className="bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 h-full rounded-xl"
           style={{
-            width: `${progressPercentage}%`, // Progress percentage
+            width: `${progressPercentage}%`,
           }}
         ></div>
         <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
@@ -101,7 +175,7 @@ export default function FishPage() {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md focus:outline-none"
         >
-          🍔
+          🐠
         </button>
       </div>
 
@@ -144,12 +218,12 @@ export default function FishPage() {
       </div>
 
       {/* Profile Modal */}
-      {isProfileOpen && (
+      {isProfileOpen && user && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
           <div className="bg-white p-8 rounded-lg w-1/3">
             <h2 className="text-2xl font-bold mb-4">User Profile</h2>
-            <p className="mb-2">Email: {userEmail}</p>
-            <p className="mb-2">Name: {userName}</p>
+            <p className="mb-2">Email: {user.email ?? 'No email'}</p>
+            <p className="mb-2">Name: {user.user_metadata?.nickname ?? 'Unknown'}</p>
             <button
               onClick={() => setIsProfileOpen(false)}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
@@ -164,24 +238,21 @@ export default function FishPage() {
       <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
         {filteredSpecies
           .sort((a, b) => a.name.localeCompare(b.name))
-          .map(fish => {
+          .map((fish) => {
             const isUnlocked = unlocked.includes(fish.id)
             return (
               <div
                 key={fish.id}
                 onClick={() => toggleUnlock(fish.id)}
                 className={`cursor-pointer border rounded p-4 flex flex-col items-center transition-all duration-300
-                  ${isUnlocked ? 'bg-white' : 'bg-black'}
-                  ${isUnlocked ? 'text-black' : 'text-white'}
-                  ${isUnlocked ? 'scale-100' : 'scale-90'}
+                  ${isUnlocked ? 'bg-white text-black scale-100' : 'bg-black text-white scale-90'}
                 `}
               >
                 <img
                   src={fish.image_url}
                   alt={fish.name}
                   className={`w-full aspect-square object-cover mb-2 transition-all duration-300 
-                    ${isUnlocked ? 'filter-none' : 'grayscale'}
-                    ${isUnlocked ? 'scale-100' : 'scale-90'}
+                    ${isUnlocked ? 'filter-none scale-100' : 'grayscale scale-90'}
                   `}
                 />
                 <h2 className="font-bold text-center">{fish.name}</h2>
