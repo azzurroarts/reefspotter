@@ -2,61 +2,51 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
-
-type UserProfile = {
-  id: string
-  email: string | null
-  full_name: string
-  nickname: string
-  favourite_fish: string
-  location: string
-  profile_image: string
-}
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
+  const router = useRouter()
 
-  const handleLogin = async () => {
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) console.error(error.message)
-    setLoading(false)
-  }
-
-  const handleSignup = async () => {
-    setLoading(true)
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) console.error(error.message)
-    setLoading(false)
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
+    if (error) {
+      setErrorMsg(error.message)
+    } else {
+      router.push('/fish')
+    }
   }
 
   return (
     <div className="login-container">
       <h1 className="login-header">Login</h1>
-      <div className="login-form">
+      <form className="login-form" onSubmit={handleLogin}>
         <input
+          className="input-field"
           type="email"
           placeholder="Email"
-          className="input-field"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
+          className="input-field"
           type="password"
           placeholder="Password"
-          className="input-field"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button onClick={handleLogin} disabled={loading} className="login-btn">
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-        <button onClick={handleSignup} disabled={loading} className="login-btn mt-2">
-          {loading ? 'Signing up...' : 'Sign Up'}
-        </button>
-      </div>
+        <button className="login-btn" type="submit">Login</button>
+      </form>
+      {errorMsg && <p className="text-red-500 mt-2">{errorMsg}</p>}
+      <p className="sign-up">
+        No account? <a href="/signup">Sign up</a>
+      </p>
     </div>
   )
 }

@@ -1,20 +1,28 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase-browser'
+import { useRouter } from 'next/navigation'
 
-export default function Layout({ children }) {
-  const [user, setUser] = useState(null)
+export default function RootLayout({ children }) {
+  const router = useRouter()
+  const [darkMode, setDarkMode] = useState(false)
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="p-4 bg-blue-500 text-white">
-        <h1>My Reef App</h1>
-      </header>
-      <main className="flex-1">{children}</main>
-      <footer className="p-4 bg-gray-200 text-center">
-        &copy; 2025 Reef App
-      </footer>
-    </div>
+    <html lang="en" className={darkMode ? 'dark' : ''}>
+      <body className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
+        <header className="p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
+          <h1 className="text-2xl font-bold cursor-pointer" onClick={() => router.push('/')}>
+            ReefSpotter
+          </h1>
+          <button
+            className="px-3 py-1 border rounded"
+            onClick={() => setDarkMode(!darkMode)}
+          >
+            {darkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
+        </header>
+        <main>{children}</main>
+      </body>
+    </html>
   )
 }
