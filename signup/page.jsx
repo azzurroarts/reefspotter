@@ -3,52 +3,53 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 
-export default function SignUpPage() {
+export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [fullName, setFullName] = useState('')
   const router = useRouter()
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignup = async (e) => {
     e.preventDefault()
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) setError(error.message)
-    else router.push('/login')
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName } }
+    })
+    if (!error) router.push('/fish')
+    else alert(error.message)
   }
 
   return (
     <div className="login-container">
-      <div className="image-circle">
-        <Image
-          src="https://csmqqtenglpbdgfobdsi.supabase.co/storage/v1/object/public/species-images/leafyseadragon.png"
-          alt="Fish Species"
-          width={200}
-          height={200}
-        />
-      </div>
       <h1 className="login-header">Sign Up</h1>
-      {error && <p className="text-red-500 font-bold">{error}</p>}
-      <form onSubmit={handleSignUp} className="login-form">
+      <form className="login-form" onSubmit={handleSignup}>
+        <input
+          type="text"
+          placeholder="Full Name"
+          className="input-field"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+        />
         <input
           type="email"
           placeholder="Email"
+          className="input-field"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="input-field"
         />
         <input
           type="password"
           placeholder="Password"
+          className="input-field"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="input-field"
         />
         <button type="submit" className="login-btn">Sign Up</button>
       </form>
       <div className="sign-up">
-        <p>Already have an account? <a href="/login">Login here</a></p>
+        <a href="../login">Back to Login</a>
       </div>
     </div>
   )
