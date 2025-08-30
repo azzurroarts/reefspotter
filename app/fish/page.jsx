@@ -60,29 +60,29 @@ export default function FishPage() {
         reefspotter
       </h1>
 
-      {/* Top-left buttons side by side, larger */}
+      {/* Top-left buttons side by side, much bigger */}
       <div className="flex gap-6 mb-4">
         <button
           onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className="p-8 md:p-10 bg-white text-black border-2 border-black rounded-full shadow-md text-3xl md:text-4xl focus:outline-none"
+          className="p-12 md:p-16 bg-white text-black border-2 border-black rounded-2xl shadow-lg text-5xl md:text-6xl focus:outline-none"
         >
           👤
         </button>
         <button
           onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="p-8 md:p-10 bg-white text-black border-2 border-black rounded-full shadow-md text-3xl md:text-4xl focus:outline-none"
+          className="p-12 md:p-16 bg-white text-black border-2 border-black rounded-2xl shadow-lg text-5xl md:text-6xl focus:outline-none"
         >
           🐟
         </button>
       </div>
 
-      {/* Filter Dropdown (below buttons, left-aligned) */}
+      {/* Filter Modal (below buttons, left-aligned, bigger) */}
       {isFilterOpen && (
-        <div className="bg-white border-2 border-black rounded-md p-4 w-64 mt-2 z-50">
+        <div className="bg-white border-2 border-black rounded-2xl p-6 w-72 mt-4 z-50 shadow-lg">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md w-full"
+            className="p-4 bg-white text-black border-2 border-black rounded-full w-full text-lg"
           >
             <option value="All Species">All Species</option>
             <option value="GBR">Great Barrier Reef (GBR)</option>
@@ -107,15 +107,24 @@ export default function FishPage() {
             <h2 className="text-black">User Profile</h2>
             <p className="text-black">Email: {user?.email || 'N/A'}</p>
             <p className="text-black">Name: {user?.user_metadata?.nickname || 'GUEST'}</p>
-            <div className="flex gap-2 mt-4">
-              <button className="login-btn" onClick={() => alert('Login flow placeholder')}>
+            <div className="flex gap-4 mt-4">
+              <button
+                className="login-btn bg-green-500 text-white px-6 py-3 rounded-xl font-bold"
+                onClick={() => alert('Login flow placeholder')}
+              >
                 LOGIN
               </button>
-              <button className="login-btn" onClick={() => alert('Signup flow placeholder')}>
+              <button
+                className="login-btn bg-blue-500 text-white px-6 py-3 rounded-xl font-bold"
+                onClick={() => alert('Signup flow placeholder')}
+              >
                 SIGNUP
               </button>
             </div>
-            <button className="close-btn mt-4" onClick={() => setIsProfileOpen(false)}>
+            <button
+              className="close-btn mt-4 bg-red-500 text-white px-6 py-2 rounded-xl font-bold"
+              onClick={() => setIsProfileOpen(false)}
+            >
               Close
             </button>
           </div>
