@@ -24,10 +24,6 @@ type Species = {
   location: string | null
 }
 
-type UnlockData = {
-  species_id: number
-}
-
 export default function FishPage() {
   const [species, setSpecies] = useState<Species[]>([])
   const [unlocked, setUnlocked] = useState<number[]>([])
@@ -37,23 +33,22 @@ export default function FishPage() {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const router = useRouter()
 
-  // Fetch current logged-in user
+  // Get current logged-in user
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user: supaUser } } = await supabase.auth.getUser()
-      if (supaUser) {
-        const typedUser: SupabaseUser = {
-          id: supaUser.id,
-          email: supaUser.email ?? null,
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUser({
+          id: user.id,
+          email: user.email || null,
           user_metadata: {
-            full_name: supaUser.user_metadata.full_name ?? '',
-            nickname: supaUser.user_metadata.nickname ?? '',
-            favourite_fish: supaUser.user_metadata.favourite_fish ?? '',
-            location: supaUser.user_metadata.location ?? '',
-            profile_image: supaUser.user_metadata.profile_image ?? ''
+            full_name: user.user_metadata?.full_name || '',
+            nickname: user.user_metadata?.nickname || '',
+            favourite_fish: user.user_metadata?.favourite_fish || '',
+            location: user.user_metadata?.location || '',
+            profile_image: user.user_metadata?.profile_image || ''
           }
-        }
-        setUser(typedUser)
+        })
       } else {
         router.push('/login')
       }
@@ -78,7 +73,7 @@ export default function FishPage() {
         .from('sightings')
         .select('species_id')
         .eq('user_id', user.id)
-      if (data) setUnlocked((data as UnlockData[]).map(d => d.species_id))
+      if (data) setUnlocked(data.map(d => d.species_id))
     }
     fetchUnlocked()
   }, [user])
@@ -94,30 +89,31 @@ export default function FishPage() {
     }
   }
 
+  // Filtered species
   const filteredSpecies = species.filter(fish => {
     if (filter === 'All Species') return true
     if (!fish.location) return true
     return fish.location === filter
   })
 
-  const progressPercentage = (unlocked.length / filteredSpecies.length) * 100
+  const progressPercentage = filteredSpecies.length ? (unlocked.length / filteredSpecies.length) * 100 : 0
 
   return (
-    <div className="relative">
-      {/* Thick Progress Bar */}
-      <div className="fixed top-10 left-1/3 w-1/3 md:w-1/4 h-10 bg-gray-300 border border-black rounded-xl z-10">
+    <div className="relative min-h-screen bg-gray-50">
+      {/* Progress Bar */}
+      <div className="fixed top-8 left-1/2 transform -translate-x-1/2 w-2/3 md:w-1/2 h-8 bg-gray-300 border border-black rounded-full z-10">
         <div
-          className="bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 h-full rounded-xl"
+          className="bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500 h-full rounded-full transition-all duration-500"
           style={{ width: `${progressPercentage}%` }}
         ></div>
-        <div className="absolute top-0 right-2 text-black font-bold">{Math.round(progressPercentage)}%</div>
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 text-black font-bold">{Math.round(progressPercentage)}%</div>
       </div>
 
-      {/* Mobile Hamburger for Location Filter */}
-      <div className="fixed top-10 right-4 z-20 md:hidden">
+      {/* Mobile Hamburger */}
+      <div className="fixed top-8 right-4 z-20 md:hidden">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md focus:outline-none"
+          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md"
         >
           🍔
         </button>
@@ -128,8 +124,8 @@ export default function FishPage() {
         <div className="fixed top-16 right-4 bg-white border-2 border-black rounded-md z-20 p-3">
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md appearance-none focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300 cursor-pointer"
+            onChange={e => setFilter(e.target.value)}
+            className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md cursor-pointer"
           >
             <option value="All Species">All Species</option>
             <option value="GBR">Great Barrier Reef (GBR)</option>
@@ -139,11 +135,11 @@ export default function FishPage() {
       )}
 
       {/* Desktop Dropdown */}
-      <div className="hidden md:flex fixed top-10 right-4 z-20">
+      <div className="hidden md:flex fixed top-8 right-4 z-20">
         <select
           value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md appearance-none focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300 cursor-pointer"
+          onChange={e => setFilter(e.target.value)}
+          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md cursor-pointer"
         >
           <option value="All Species">All Species</option>
           <option value="GBR">Great Barrier Reef (GBR)</option>
@@ -151,23 +147,23 @@ export default function FishPage() {
         </select>
       </div>
 
-      {/* Profile Icon */}
-      <div className="fixed top-10 left-4 z-20">
+      {/* Profile Modal Button */}
+      <div className="fixed top-8 left-4 z-20">
         <button
           onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md focus:outline-none"
+          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md"
         >
           👤
         </button>
       </div>
 
       {/* Profile Modal */}
-      {isProfileOpen && (
+      {isProfileOpen && user && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-          <div className="bg-white p-8 rounded-lg w-1/3">
+          <div className="bg-white p-8 rounded-lg w-11/12 md:w-1/3">
             <h2 className="text-2xl font-bold mb-4">User Profile</h2>
-            <p className="mb-2">Email: {user?.email}</p>
-            <p className="mb-2">Name: {user?.user_metadata.nickname}</p>
+            <p className="mb-2">Email: {user.email}</p>
+            <p className="mb-2">Name: {user.user_metadata.nickname}</p>
             <button
               onClick={() => setIsProfileOpen(false)}
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md"
@@ -179,7 +175,7 @@ export default function FishPage() {
       )}
 
       {/* Species Cards */}
-      <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
+      <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-6 mt-24">
         {filteredSpecies
           .sort((a, b) => a.name.localeCompare(b.name))
           .map(fish => {
@@ -188,16 +184,14 @@ export default function FishPage() {
               <div
                 key={fish.id}
                 onClick={() => toggleUnlock(fish.id)}
-                className={`cursor-pointer border rounded p-4 flex flex-col items-center transition-all duration-300
-                  ${isUnlocked ? 'bg-white' : 'bg-black'}
-                  ${isUnlocked ? 'text-black' : 'text-white'}
-                  ${isUnlocked ? 'scale-100' : 'scale-90'}
+                className={`cursor-pointer border rounded-2xl p-4 flex flex-col items-center transition-all duration-300
+                  ${isUnlocked ? 'bg-white text-black scale-100' : 'bg-black text-white scale-90'}
                 `}
               >
                 <img
                   src={fish.image_url}
                   alt={fish.name}
-                  className={`w-full aspect-square object-cover mb-2 transition-all duration-300 
+                  className={`w-full aspect-square object-cover mb-2 rounded-2xl transition-all duration-300 
                     ${isUnlocked ? 'filter-none' : 'grayscale'}
                     ${isUnlocked ? 'scale-100' : 'scale-90'}
                   `}
