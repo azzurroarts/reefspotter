@@ -11,7 +11,6 @@ export default function FishPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [user, setUser] = useState(null) // guest by default
 
-  // Fetch all species
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
@@ -20,11 +19,13 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
-  // Fetch unlocked species for current user
   useEffect(() => {
     if (!user) return
     const fetchUnlocked = async () => {
-      const { data } = await supabase.from('sightings').select('species_id').eq('user_id', user.id)
+      const { data } = await supabase
+        .from('sightings')
+        .select('species_id')
+        .eq('user_id', user.id)
       if (data) setUnlocked(data.map((d) => d.species_id))
     }
     fetchUnlocked()
@@ -35,14 +36,13 @@ export default function FishPage() {
 
     if (unlocked.includes(speciesId)) {
       await supabase.from('sightings').delete().eq('user_id', user.id).eq('species_id', speciesId)
-      setUnlocked(unlocked.filter(id => id !== speciesId))
+      setUnlocked(unlocked.filter((id) => id !== speciesId))
     } else {
       await supabase.from('sightings').insert({ user_id: user.id, species_id: speciesId })
       setUnlocked([...unlocked, speciesId])
     }
   }
 
-  // Filter species based on location
   const filteredSpecies = species.filter((fish) => {
     if (filter === 'All Species') return true
     if (!fish.location) return true
@@ -54,7 +54,12 @@ export default function FishPage() {
     : 0
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white">
+      {/* Page Title */}
+      <h1 className="absolute top-4 left-4 text-white text-3xl font-bold lowercase z-50">
+        reefspotter
+      </h1>
+
       {/* Progress Bar */}
       <div className="progress-container">
         <div
@@ -64,39 +69,36 @@ export default function FishPage() {
         <div className="absolute top-0 right-2 text-black font-bold">{progressPercentage}%</div>
       </div>
 
-      {/* Left-side stacked buttons */}
-      <div className="fixed top-10 left-4 z-50 flex flex-col gap-4">
-        {/* Profile button */}
+      {/* Top-left buttons side by side */}
+      <div className="absolute top-16 left-4 z-50 flex gap-4">
         <button
           onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md focus:outline-none"
+          className="p-6 bg-white text-black border-2 border-black rounded-full shadow-md text-2xl focus:outline-none"
         >
           👤
         </button>
-
-        {/* Filter button */}
-        <button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md focus:outline-none"
-        >
-          🐟
-        </button>
-      </div>
-
-      {/* Filter dropdown */}
-      {isFilterOpen && (
-        <div className="fixed top-24 left-4 z-50 bg-white border-2 border-black rounded-md p-3">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md w-full"
+        <div className="relative">
+          <button
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className="p-6 bg-white text-black border-2 border-black rounded-full shadow-md text-2xl focus:outline-none"
           >
-            <option value="All Species">All Species</option>
-            <option value="GBR">Great Barrier Reef (GBR)</option>
-            <option value="GSR">Great Southern Reef (GSR)</option>
-          </select>
+            🐟
+          </button>
+          {isFilterOpen && (
+            <div className="absolute top-0 left-full ml-2 bg-white border-2 border-black rounded-md p-3 z-50">
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md w-full"
+              >
+                <option value="All Species">All Species</option>
+                <option value="GBR">Great Barrier Reef (GBR)</option>
+                <option value="GSR">Great Southern Reef (GSR)</option>
+              </select>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Profile Modal */}
       {isProfileOpen && (
@@ -106,23 +108,14 @@ export default function FishPage() {
             <p className="text-black">Email: {user?.email || 'N/A'}</p>
             <p className="text-black">Name: {user?.user_metadata?.nickname || 'GUEST'}</p>
             <div className="flex gap-2 mt-4">
-              <button
-                className="login-btn"
-                onClick={() => alert('Login flow placeholder')}
-              >
+              <button className="login-btn" onClick={() => alert('Login flow placeholder')}>
                 LOGIN
               </button>
-              <button
-                className="login-btn"
-                onClick={() => alert('Signup flow placeholder')}
-              >
+              <button className="login-btn" onClick={() => alert('Signup flow placeholder')}>
                 SIGNUP
               </button>
             </div>
-            <button
-              className="close-btn mt-4"
-              onClick={() => setIsProfileOpen(false)}
-            >
+            <button className="close-btn mt-4" onClick={() => setIsProfileOpen(false)}>
               Close
             </button>
           </div>
