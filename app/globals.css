@@ -1,9 +1,7 @@
-/* app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Global styles */
 html, body {
   height: 100%;
 }
@@ -15,7 +13,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #0a0a0a;
@@ -26,12 +23,12 @@ body {
 /* Progress Bar */
 .progress-container {
   position: fixed;
-  top: 2.5rem; /* 10px */
+  top: 2.5rem;
   left: 50%;
   transform: translateX(-50%);
   width: 33%;
   max-width: 400px;
-  height: 1.5rem; /* big & thick */
+  height: 1.5rem;
   background-color: #e5e7eb;
   border: 2px solid #000;
   border-radius: 12px;
@@ -42,15 +39,13 @@ body {
   border-radius: 12px;
 }
 
-/* Mobile Dropdown Hamburger */
+/* Mobile Dropdown */
 .mobile-menu-button {
   padding: 0.75rem;
   background-color: #fff;
   border: 2px solid #000;
   border-radius: 9999px;
-  text-align: center;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 .mobile-menu {
   position: fixed;
@@ -67,7 +62,6 @@ body {
   border: 2px solid #000;
   border-radius: 9999px;
   width: 100%;
-  font-size: 1rem;
 }
 
 /* Species Card */
@@ -149,13 +143,8 @@ body {
   color: white;
   margin-top: 1rem;
 }
-.profile-modal-content .login-btn {
-  background-color: #22c55e;
-  color: white;
-  margin-right: 0.5rem;
-}
 
-/* Optional: smooth scale & hover */
+/* Hover scale */
 .species-card:hover {
   transform: scale(1.03);
 }
