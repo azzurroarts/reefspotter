@@ -47,7 +47,8 @@ export default function FishPage() {
 
 
       {/* Top-left buttons side by side, larger */}
-      <div className="flex gap-6 mb-4">
+     <div className="sticky-buttons mb-4">
+
         <button
           onClick={() => setIsProfileOpen(!isProfileOpen)}
           className="p-6 md:p-8 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
