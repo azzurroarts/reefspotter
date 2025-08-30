@@ -9,7 +9,7 @@ export default function FishPage() {
   const [filter, setFilter] = useState('All Species')
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [user, setUser] = useState(null) // guest by default
+  const [user, setUser] = useState(null) // guest
 
   useEffect(() => {
     const fetchSpecies = async () => {
@@ -54,31 +54,31 @@ export default function FishPage() {
     : 0
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-4">
+    <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-6">
       {/* Page Title */}
       <h1 className="text-white text-4xl md:text-5xl font-bold lowercase mb-6">
         reefspotter
       </h1>
 
-      {/* Top-left buttons side by side, much bigger */}
-      <div className="flex gap-6 mb-4">
+      {/* Buttons Container */}
+      <div className="flex items-start gap-6 mb-4">
         <button
           onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className="p-12 md:p-16 bg-white text-black border-2 border-black rounded-2xl shadow-lg text-5xl md:text-6xl focus:outline-none"
+          className="w-28 h-28 md:w-32 md:h-32 bg-white text-black border-2 border-black rounded-2xl shadow-lg text-4xl md:text-5xl flex items-center justify-center"
         >
           👤
         </button>
         <button
           onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="p-12 md:p-16 bg-white text-black border-2 border-black rounded-2xl shadow-lg text-5xl md:text-6xl focus:outline-none"
+          className="w-28 h-28 md:w-32 md:h-32 bg-white text-black border-2 border-black rounded-2xl shadow-lg text-4xl md:text-5xl flex items-center justify-center"
         >
           🐟
         </button>
       </div>
 
-      {/* Filter Modal (below buttons, left-aligned, bigger) */}
+      {/* Filter Modal */}
       {isFilterOpen && (
-        <div className="bg-white border-2 border-black rounded-2xl p-6 w-72 mt-4 z-50 shadow-lg">
+        <div className="bg-white border-2 border-black rounded-2xl p-6 w-80 mt-2 shadow-lg">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
