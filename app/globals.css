@@ -103,9 +103,12 @@ html, body {
 .species-card.unlocked {
   color: #ffffff;
   transform: scale(1);
-  border: 3px solid #ffffff; /* white highlight for spotted fish */
+  border: 3px solid #ffffff; /* white highlight */
   box-shadow: 0 0 12px rgba(255,255,255,0.7); /* subtle glow */
+  background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(200,200,200,0.1)); /* slight lightening */
+  transition: all 0.3s ease, background 0.3s ease; /* smooth background change */
 }
+
 
 .species-card.locked {
   color: #ffffff;
