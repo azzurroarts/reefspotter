@@ -14,7 +14,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Dark mode */
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #0a0a0a;
@@ -47,9 +47,7 @@ body {
   background-color: #fff;
   border: 2px solid #000;
   border-radius: 9999px;
-  text-align: center;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 .mobile-menu {
   position: fixed;
@@ -69,7 +67,7 @@ body {
   font-size: 1rem;
 }
 
-/* Species Card */
+/* Species Cards */
 .species-card {
   cursor: pointer;
   border-radius: 12px;
@@ -149,7 +147,7 @@ body {
   margin-top: 1rem;
 }
 
-/* Optional: hover effect */
+/* Optional hover effect */
 .species-card:hover {
   transform: scale(1.03);
 }
