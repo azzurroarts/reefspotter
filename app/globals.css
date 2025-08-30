@@ -87,39 +87,40 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: all 0.3s ease;
-  background: linear-gradient(to bottom, rgba(55,55,55,0.9), rgba(30,30,30,0.9)); /* dark fade */
-  padding: 0.5rem;
-}
-
-.species-card img {
-  width: 100%;
-  aspect-ratio: 1/1;
-  object-fit: cover; /* desktop: crop nicely */
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.species-card.unlocked {
-  background-color: #ffffff; /* full white when unlocked */
-  color: #000000;            /* black text */
-  transform: scale(1);
-  border: 3px solid #ffffff; /* optional: blend border with background */
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.7); /* white glow */
   transition: all 0.3s ease, background-color 0.3s ease;
 }
 
+/* Images scale to fit inside card without cropping */
+.species-card img {
+  width: 100%;
+  height: auto;      /* ensures image scales proportionally */
+  object-fit: contain; /* no cropping, scales inside card */
+  transition: all 0.3s ease;
+}
 
-
+/* Locked / not spotted cards */
 .species-card.locked {
+  background-color: #1a1a1a;  /* dark grey for maximum contrast */
   color: #ffffff;
   transform: scale(0.95);
   filter: grayscale(100%);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.4); /* subtle dark glow */
 }
 
+/* Unlocked / spotted cards */
+.species-card.unlocked {
+  background-color: #ffffff;    /* full white */
+  color: #000000;               /* black text */
+  transform: scale(1);
+  border: 3px solid #ffffff;    /* optional: border blends with background */
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8); /* strong white glow */
+}
+
+/* Optional hover effect on all cards */
 .species-card:hover {
   transform: scale(1.03);
 }
+
 
 /* Mobile tweaks: show full fish inside card */
 @media (max-width: 767px) {
