@@ -56,18 +56,18 @@ export default function FishPage() {
       </div>
 
       {/* Filter button (top-right) */}
-<div className="fixed top-10 right-16 z-50">
+<div className="fixed top-10 right-0 z-50">
   <button
     className="mobile-menu-button"
     onClick={() => setIsFilterOpen(!isFilterOpen)}
   >
-    🐟 Filter
+    🐟
   </button>
 </div>
 
 {/* Filter dropdown */}
 {isFilterOpen && (
-  <div className="mobile-menu fixed top-16 right-16 z-50">
+  <div className="mobile-menu fixed top-16 right-0 z-50">
     <select
       value={filter}
       onChange={(e) => setFilter(e.target.value)}
