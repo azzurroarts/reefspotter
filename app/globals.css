@@ -152,6 +152,7 @@ html, body {
   color: white;
   margin-right: 0.5rem;
 }
+
 /* Sticky Page Title */
 .sticky-title {
   position: sticky;
@@ -159,52 +160,31 @@ html, body {
   left: 1rem;
   z-index: 40; /* above cards but below modals if needed */
 }
+
 .sticky-buttons {
   position: sticky;
-  top: 4.5rem; /* slightly below the sticky title */
+  top: 5.5rem; /* pushed down further so it won’t overlap title */
   display: flex;
   gap: 1.5rem;
   z-index: 20;
 }
-.filter-dropdown {
-  position: absolute; /* so it hovers relative to buttons */
-  top: 100%;          /* directly below buttons */
-  left: 0;
-  background-color: white;
-  border: 2px solid black;
-  border-radius: 16px;
-  padding: 1rem;
-  width: 16rem;       /* nice bubble width */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  z-index: 30;
-}
-.filter-dropdown select {
-  width: 100%;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px;
-  border: 2px solid black;
-  font-weight: bold;
-  background-color: white;
-  color: black;
-  cursor: pointer;
-}
 
-/* STICKY BUTTONS + FILTER BUBBLE */
+/* Sticky Buttons + Filter Bubble */
 .sticky-button-container {
   position: sticky;
-  top: 1rem; /* distance from top of viewport */
+  top: 5.5rem; /* synced with sticky-buttons */
   display: flex;
-  gap: 1.5rem; /* space between buttons */
+  gap: 1.5rem;
   z-index: 50;
 }
 
 .sticky-button {
-  width: 6rem;       
-  height: 6rem;
+  width: 4rem;       /* smaller: about 2/3 previous size */
+  height: 4rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;  
+  font-size: 2rem;   /* smaller emoji size */
   border: 2px solid black;
   border-radius: 9999px;
   background-color: white;
@@ -220,9 +200,9 @@ html, body {
 
 @media (min-width: 768px) {
   .sticky-button {
-    width: 8rem;
-    height: 8rem;
-    font-size: 4rem;
+    width: 5.5rem;  /* smaller desktop size */
+    height: 5.5rem;
+    font-size: 2.75rem;
   }
 }
 
