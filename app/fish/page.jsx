@@ -9,7 +9,7 @@ export default function FishPage() {
   const [filter, setFilter] = useState('All Species')
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [user, setUser] = useState(null) // guest
+  const [user, setUser] = useState(null) // guest by default
 
   useEffect(() => {
     const fetchSpecies = async () => {
@@ -54,35 +54,35 @@ export default function FishPage() {
     : 0
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-6">
+    <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-4">
       {/* Page Title */}
       <h1 className="text-white text-4xl md:text-5xl font-bold lowercase mb-6">
         reefspotter
       </h1>
 
-      {/* Buttons Container */}
-      <div className="flex items-start gap-6 mb-4">
+      {/* Top-left buttons side by side, larger */}
+      <div className="flex gap-6 mb-4">
         <button
           onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className="w-28 h-28 md:w-32 md:h-32 bg-white text-black border-2 border-black rounded-2xl shadow-lg text-4xl md:text-5xl flex items-center justify-center"
+          className="p-8 md:p-10 bg-white text-black border-2 border-black rounded-full shadow-md text-3xl md:text-4xl focus:outline-none"
         >
           👤
         </button>
         <button
           onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="w-28 h-28 md:w-32 md:h-32 bg-white text-black border-2 border-black rounded-2xl shadow-lg text-4xl md:text-5xl flex items-center justify-center"
+          className="p-8 md:p-10 bg-white text-black border-2 border-black rounded-full shadow-md text-3xl md:text-4xl focus:outline-none"
         >
           🐟
         </button>
       </div>
 
-      {/* Filter Modal */}
+      {/* Filter Dropdown (below buttons, left-aligned) */}
       {isFilterOpen && (
-        <div className="bg-white border-2 border-black rounded-2xl p-6 w-80 mt-2 shadow-lg">
+        <div className="bg-white border-2 border-black rounded-md p-4 w-64 mt-2 z-50">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="p-4 bg-white text-black border-2 border-black rounded-full w-full text-lg"
+            className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md w-full"
           >
             <option value="All Species">All Species</option>
             <option value="GBR">Great Barrier Reef (GBR)</option>
@@ -107,24 +107,15 @@ export default function FishPage() {
             <h2 className="text-black">User Profile</h2>
             <p className="text-black">Email: {user?.email || 'N/A'}</p>
             <p className="text-black">Name: {user?.user_metadata?.nickname || 'GUEST'}</p>
-            <div className="flex gap-4 mt-4">
-              <button
-                className="login-btn bg-green-500 text-white px-6 py-3 rounded-xl font-bold"
-                onClick={() => alert('Login flow placeholder')}
-              >
+            <div className="flex gap-2 mt-4">
+              <button className="login-btn" onClick={() => alert('Login flow placeholder')}>
                 LOGIN
               </button>
-              <button
-                className="login-btn bg-blue-500 text-white px-6 py-3 rounded-xl font-bold"
-                onClick={() => alert('Signup flow placeholder')}
-              >
+              <button className="login-btn" onClick={() => alert('Signup flow placeholder')}>
                 SIGNUP
               </button>
             </div>
-            <button
-              className="close-btn mt-4 bg-red-500 text-white px-6 py-2 rounded-xl font-bold"
-              onClick={() => setIsProfileOpen(false)}
-            >
+            <button className="close-btn mt-4" onClick={() => setIsProfileOpen(false)}>
               Close
             </button>
           </div>
