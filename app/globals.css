@@ -252,25 +252,20 @@ html, body {
   font-weight: bold;
 }
 
-/* Mobile progress bar adjustment */
+/* Mobile Progress Bar */
 @media (max-width: 767px) {
   .progress-container {
-    position: absolute;     /* position relative to parent or sticky header */
-    top: 5.5rem;            /* same as sticky buttons top */
-    left: 10rem;             /* reset left */
-    right: 1rem;            /* hug the right edge */
-    width: calc(100% - 10rem); /* fill remaining space next to buttons (adjust 10rem if needed) */
-    max-width: none;        /* remove desktop max-width */
+    position: fixed;
+    top: 5.5rem; /* vertically aligned with sticky buttons */
+    right: 1rem; /* hug the right side */
+    left: auto;  /* override center */
+    width: calc(100% - 6.5rem); /* fill space to the right of buttons (6.5rem = approx button width + gap) */
+    max-width: none; 
     height: 1.5rem;
-    border-radius: 12px;
+    z-index: 10;
   }
-
   .progress-bar {
     height: 100%;
     border-radius: 12px;
-  }
-
-  .progress-container div {
-    right: 0.5rem; /* adjust the percentage text inside the bar */
   }
 }
