@@ -188,7 +188,7 @@ html, body {
   position: sticky;
   top: 2.5rem; /* pushed down further so it won’t overlap title */
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   z-index: 20;
 }
 /* Sticky Buttons + Filter Bubble */
@@ -196,7 +196,7 @@ html, body {
   position: sticky;
   top: 4rem; /* synced with sticky-buttons */
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   z-index: 50;
 }
 
