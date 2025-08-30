@@ -7,11 +7,10 @@ export default function FishPage() {
   const [species, setSpecies] = useState([])
   const [unlocked, setUnlocked] = useState([])
   const [filter, setFilter] = useState('All Species')
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [user, setUser] = useState({ id: 'guest', email: null, nickname: 'GUEST' })
 
-  // Fetch species from Supabase
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
@@ -20,7 +19,6 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
-  // Example: fetch unlocked species for guest or logged in user
   useEffect(() => {
     if (user.id === 'guest') return
     const fetchUnlocked = async () => {
@@ -30,7 +28,6 @@ export default function FishPage() {
     fetchUnlocked()
   }, [user])
 
-  // Toggle species unlocked
   const toggleUnlock = (speciesId) => {
     if (unlocked.includes(speciesId)) {
       setUnlocked(unlocked.filter(id => id !== speciesId))
@@ -39,14 +36,12 @@ export default function FishPage() {
     }
   }
 
-  // Filtered species
   const filteredSpecies = species.filter(fish => {
     if (filter === 'All Species') return true
     if (!fish.location) return true
     return fish.location === filter
   })
 
-  // Progress bar percentage
   const progress = filteredSpecies.length > 0 ? Math.round((unlocked.length / filteredSpecies.length) * 100) : 0
 
   return (
@@ -57,22 +52,22 @@ export default function FishPage() {
           className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-400 to-blue-500"
           style={{ width: `${progress}%` }}
         ></div>
-        <div className="absolute top-0 right-2 font-bold text-black dark:text-white">{progress}%</div>
+        <div className="absolute top-0 right-2 font-bold text-black">{progress}%</div>
       </div>
 
-      {/* Mobile Dropdown Button */}
-      <div className="fixed top-10 left-4 z-50">
+      {/* Filter button */}
+      <div className="fixed top-10 right-16 z-50">
         <button
           className="mobile-menu-button"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
         >
-          🐠
+          Filter 🐠
         </button>
       </div>
 
-      {/* Mobile Dropdown */}
-      {isMobileMenuOpen && (
-        <div className="mobile-menu">
+      {/* Filter dropdown */}
+      {isFilterOpen && (
+        <div className="mobile-menu fixed top-16 right-16 z-50">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -98,18 +93,23 @@ export default function FishPage() {
       {/* Profile Modal */}
       {isProfileOpen && (
         <div className="profile-modal">
-          <div className="profile-modal-content">
+          <div className="profile-modal-content text-black">
             <h2>User Profile</h2>
             <p>Email: {user.email || 'N/A'}</p>
             <p>Name: {user.nickname || 'GUEST'}</p>
 
-            <div className="flex justify-end mt-4">
-              {/* Placeholder buttons for login/signup */}
+            <div className="flex justify-end mt-4 gap-2">
               <button
                 className="login-btn"
-                onClick={() => alert('Login flow placeholder')}
+                onClick={() => alert('Login modal placeholder')}
               >
                 Login
+              </button>
+              <button
+                className="login-btn"
+                onClick={() => alert('Signup modal placeholder')}
+              >
+                Signup
               </button>
               <button
                 className="close-btn"
