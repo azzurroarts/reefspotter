@@ -73,6 +73,7 @@ html, body {
   gap: 1rem;
   margin-top: 4rem;
 }
+
 @media(min-width: 768px) {
   .species-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -88,24 +89,36 @@ html, body {
   flex-direction: column;
   align-items: center;
   transition: all 0.3s ease;
+  padding: 0.25rem; /* optional tiny padding for breathing room */
 }
+
 .species-card img {
   width: 100%;
   aspect-ratio: 1/1;
-  object-fit: cover;
+  object-fit: cover; /* desktop behavior */
   transition: all 0.3s ease;
 }
+
+/* Mobile tweak: make images fit within the card without cropping */
+@media (max-width: 767px) {
+  .species-card img {
+    object-fit: contain;
+  }
+}
+
 .species-card.unlocked {
   background-color: #ffffff;
   color: #000000;
   transform: scale(1);
 }
+
 .species-card.locked {
   background-color: #000000;
   color: #ffffff;
   transform: scale(0.95);
   filter: grayscale(100%);
 }
+
 .species-card:hover {
   transform: scale(1.03);
 }
