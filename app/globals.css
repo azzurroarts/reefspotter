@@ -166,3 +166,25 @@ html, body {
   gap: 1.5rem;
   z-index: 20;
 }
+.filter-dropdown {
+  position: absolute; /* so it hovers relative to buttons */
+  top: 100%;          /* directly below buttons */
+  left: 0;
+  background-color: white;
+  border: 2px solid black;
+  border-radius: 16px;
+  padding: 1rem;
+  width: 16rem;       /* nice bubble width */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 30;
+}
+.filter-dropdown select {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 2px solid black;
+  font-weight: bold;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+}

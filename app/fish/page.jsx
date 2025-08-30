@@ -47,36 +47,36 @@ export default function FishPage() {
 
 
       {/* Top-left buttons side by side, larger */}
-     <div className="sticky-buttons mb-4">
+     <div className="sticky-buttons mb-4 relative">
+  {/* Buttons */}
+  <button
+    onClick={() => setIsProfileOpen(!isProfileOpen)}
+    className="p-6 md:p-8 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
+  >
+    👤
+  </button>
+  <button
+    onClick={() => setIsFilterOpen(!isFilterOpen)}
+    className="p-6 md:p-8 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
+  >
+    🐟
+  </button>
 
-        <button
-          onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className="p-6 md:p-8 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
-        >
-          👤
-        </button>
-        <button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="p-6 md:p-8 bg-white text-black border-2 border-black rounded-full shadow-md text-4xl md:text-5xl focus:outline-none"
-        >
-          🐟
-        </button>
-      </div>
+  {/* Filter Dropdown */}
+  {isFilterOpen && (
+    <div className="filter-dropdown mt-2">
+      <select
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+      >
+        <option value="All Species">All Species</option>
+        <option value="GBR">Great Barrier Reef (GBR)</option>
+        <option value="GSR">Great Southern Reef (GSR)</option>
+      </select>
+    </div>
+  )}
+</div>
 
-      {/* Filter Dropdown (below buttons, left-aligned) */}
-      {isFilterOpen && (
-        <div className="bg-white border-2 border-black rounded-xl p-4 w-72 mt-2 z-50 shadow-lg">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="p-3 bg-white text-black border-2 border-black rounded-full shadow-md w-full"
-          >
-            <option value="All Species">All Species</option>
-            <option value="GBR">Great Barrier Reef (GBR)</option>
-            <option value="GSR">Great Southern Reef (GSR)</option>
-          </select>
-        </div>
-      )}
 
       {/* Progress Bar */}
       <div className="progress-container mt-4 relative">
