@@ -41,9 +41,10 @@ export default function FishPage() {
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-4">
       {/* Page Title */}
-      <h1 className="text-white text-4xl md:text-5xl font-bold lowercase mb-6">
-        reefspotter
-      </h1>
+      <h1 className="sticky-title text-white text-4xl md:text-5xl font-bold lowercase mb-6">
+  reefspotter
+</h1>
+
 
       {/* Top-left buttons side by side, larger */}
       <div className="flex gap-6 mb-4">

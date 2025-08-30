@@ -152,3 +152,10 @@ html, body {
   color: white;
   margin-right: 0.5rem;
 }
+/* Sticky Page Title */
+.sticky-title {
+  position: sticky;
+  top: 1rem; /* distance from top */
+  left: 1rem;
+  z-index: 40; /* above cards but below modals if needed */
+}
