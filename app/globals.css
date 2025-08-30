@@ -159,3 +159,10 @@ html, body {
   left: 1rem;
   z-index: 40; /* above cards but below modals if needed */
 }
+.sticky-buttons {
+  position: sticky;
+  top: 4.5rem; /* slightly below the sticky title */
+  display: flex;
+  gap: 1.5rem;
+  z-index: 20;
+}
