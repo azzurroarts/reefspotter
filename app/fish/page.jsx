@@ -261,15 +261,11 @@ export default function FishPage() {
       </div>
 
       {/* Alphabet Sidebar */}
-      <div className="fixed right-0 top-1/4 flex flex-col items-center p-1 bg-black/30 rounded-l-xl z-50">
+      <div className="vertical-alphabet">
         {alphabet.map((letter) => (
-          <button
-            key={letter}
-            onClick={() => scrollToLetter(letter)}
-            className="text-white text-xs md:text-sm hover:text-yellow-400"
-          >
+          <span key={letter} onClick={() => scrollToLetter(letter)}>
             {letter}
-          </button>
+          </span>
         ))}
       </div>
     </div>

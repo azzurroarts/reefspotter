@@ -299,29 +299,27 @@ html, body {
     border-radius: 12px;
   }
 }
-/* --- Vertical alphabet --- */
 .vertical-alphabet {
   position: fixed;
   top: 50%;
-  right: 0.5rem;
+  right: 1rem;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  z-index: 50; /* keeps it above cards */
+  gap: 0.5rem;
+  z-index: 50;
+  user-select: none;
 }
 
-.vertical-alphabet button {
-  background: transparent;
-  border: none;
-  color: #666;
-  font-size: 0.8rem;
+.vertical-alphabet span {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #bbb; /* light grey */
   cursor: pointer;
-  padding: 0.2rem;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.vertical-alphabet button:hover {
+.vertical-alphabet span:hover {
   color: #000;
-  font-weight: bold;
+  transform: scale(1.2);
 }
-
