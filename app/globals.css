@@ -299,27 +299,47 @@ html, body {
     border-radius: 12px;
   }
 }
+/* Vertical Alphabet Nav */
 .vertical-alphabet {
-  position: fixed;
-  top: 50%;
-  right: 1rem;
-  transform: translateY(-50%);
+  position: sticky;
+  top: 5rem; /* adjust to sit just below progress bar + sticky buttons */
+  right: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
   z-index: 50;
+}
+
+.alphabet-letter {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #9ca3af; /* Tailwind gray-400 */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
   user-select: none;
 }
 
-.vertical-alphabet span {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #bbb; /* light grey */
-  cursor: pointer;
-  transition: color 0.2s ease, transform 0.2s ease;
+.alphabet-letter:hover {
+  transform: scale(1.1);
 }
 
-.vertical-alphabet span:hover {
-  color: #000;
-  transform: scale(1.2);
+.alphabet-letter.active {
+  color: white;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+}
+
+/* On mobile keep it sticky but smaller padding so it doesn’t overlap */
+@media (max-width: 768px) {
+  .vertical-alphabet {
+    top: 7rem; /* lower down to clear progress bar on small screens */
+    right: 0.25rem;
+    gap: 0.15rem;
+    padding: 0.25rem;
+  }
+
+  .alphabet-letter {
+    font-size: 1rem;
+  }
 }
