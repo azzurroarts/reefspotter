@@ -322,7 +322,7 @@ html, body {
 }
 
 .alphabet-letter:hover {
-  transform: scale(1.1);
+  transform: scale(1.5);
 }
 
 .alphabet-letter.active {
