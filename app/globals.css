@@ -352,7 +352,7 @@ html, body {
   height: 11rem; /* desktop height */
   background: linear-gradient(to bottom, rgb(0, 0, 0), transparent);
   pointer-events: none; /* allows clicks to go through */
-  z-index: 40; /* below sticky buttons (50+) but above cards */
+  z-index: 49; /* below sticky buttons (50+) but above cards */
 }
 
 /* Mobile adjustments */
