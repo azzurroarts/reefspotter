@@ -20,8 +20,10 @@ export default function FishPage() {
   const [location, setLocation] = useState('')
   const [bio, setBio] = useState('')
 
-  // Refs for alphabet scrolling
+  // Alphabet
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
   const letterRefs = useRef({})
+  const [activeLetter, setActiveLetter] = useState(null)
 
   // Fetch species
   useEffect(() => {
@@ -32,7 +34,7 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
-  // Fetch unlocked species for logged-in user
+  // Fetch unlocked species
   useEffect(() => {
     if (!user) return
     const fetchUnlocked = async () => {
@@ -45,7 +47,7 @@ export default function FishPage() {
     fetchUnlocked()
   }, [user])
 
-  // Fetch profile data for editing
+  // Fetch profile
   useEffect(() => {
     if (!user) return
     const fetchProfile = async () => {
@@ -100,7 +102,7 @@ export default function FishPage() {
     ? Math.round((unlocked.length / filteredSpecies.length) * 100)
     : 0
 
-  // Login
+  // Auth functions
   const handleLogin = async () => {
     setAuthError('')
     const { data: loginData, error } = await supabase.auth.signInWithPassword({
@@ -123,7 +125,6 @@ export default function FishPage() {
     }
   }
 
-  // Signup
   const handleSignup = async () => {
     setAuthError('')
     const { data, error } = await supabase.auth.signUp({
@@ -139,14 +140,12 @@ export default function FishPage() {
     }
   }
 
-  // Logout
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setUser(null)
     setUnlocked([])
   }
 
-  // Update profile
   const handleProfileUpdate = async () => {
     if (!user) return
     await supabase
@@ -160,13 +159,11 @@ export default function FishPage() {
       .eq('id', user.id)
   }
 
-  // Letters for sidebar
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-
   const scrollToLetter = (letter) => {
     const ref = letterRefs.current[letter]
     if (ref) {
       ref.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setActiveLetter(letter)
     }
   }
 
@@ -174,6 +171,7 @@ export default function FishPage() {
     <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-4">
       <h1 className="sticky-title text-white text-4xl md:text-5xl font-bold lowercase mb-6">reefspotter</h1>
 
+      {/* Sticky buttons */}
       <div className="sticky-button-container">
         <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="sticky-button">👤</button>
         <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="sticky-button">🐟</button>
@@ -189,6 +187,7 @@ export default function FishPage() {
         )}
       </div>
 
+      {/* Progress bar */}
       <div className="progress-container mt-4 relative">
         <div className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500"
              style={{ width: `${progressPercentage}%` }} />
@@ -200,7 +199,6 @@ export default function FishPage() {
         <div className="profile-modal">
           <div className="profile-modal-content">
             <h2 className="text-black text-2xl font-bold mb-4">User Profile</h2>
-
             {user ? (
               <>
                 <input type="text" placeholder="Nickname" value={nickname} onChange={(e) => setNickname(e.target.value)}
@@ -211,7 +209,6 @@ export default function FishPage() {
                        className="w-full p-3 mb-3 rounded-full border-2 border-black text-black" />
                 <textarea placeholder="Bio" value={bio} onChange={(e) => setBio(e.target.value)}
                           className="w-full p-3 mb-3 rounded-xl border-2 border-black text-black" />
-
                 <div className="flex gap-2 mb-3">
                   <button onClick={handleProfileUpdate} className="w-1/2 p-3 rounded-full bg-green-500 text-white font-bold">Save</button>
                   <button onClick={handleLogout} className="w-1/2 p-3 rounded-full bg-red-500 text-white font-bold">Logout</button>
@@ -230,7 +227,6 @@ export default function FishPage() {
                 </div>
               </>
             )}
-
             <button onClick={() => setIsProfileOpen(false)} className="close-btn p-3 rounded-full bg-gray-700 text-white w-full font-bold">Close</button>
           </div>
         </div>
@@ -244,13 +240,9 @@ export default function FishPage() {
             const firstLetter = fish.name.charAt(0).toUpperCase()
             const prevFirstLetter = idx > 0 ? arr[idx - 1].name.charAt(0).toUpperCase() : null
             const isUnlocked = unlocked.includes(fish.id)
-
             return (
-              <div key={fish.id} ref={(el) => {
-                if (firstLetter !== prevFirstLetter) letterRefs.current[firstLetter] = el
-              }}>
-                <div onClick={() => toggleUnlock(fish.id)}
-                     className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}>
+              <div key={fish.id} ref={(el) => { if (firstLetter !== prevFirstLetter) letterRefs.current[firstLetter] = el }}>
+                <div onClick={() => toggleUnlock(fish.id)} className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}>
                   <img src={fish.image_url} alt={fish.name} />
                   <h2 className="font-bold text-center">{fish.name}</h2>
                   <p className="text-sm italic text-center">{fish.scientific_name}</p>
@@ -263,7 +255,11 @@ export default function FishPage() {
       {/* Alphabet Sidebar */}
       <div className="vertical-alphabet">
         {alphabet.map((letter) => (
-          <span key={letter} onClick={() => scrollToLetter(letter)}>
+          <span
+            key={letter}
+            className={`alphabet-letter ${activeLetter === letter ? 'active' : ''}`}
+            onClick={() => scrollToLetter(letter)}
+          >
             {letter}
           </span>
         ))}
