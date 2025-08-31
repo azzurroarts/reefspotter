@@ -302,12 +302,12 @@ html, body {
 /* Vertical Alphabet Nav */
 .vertical-alphabet {
   position: fixed; /* fix this so it always sits on screen */
-  top: 5rem; /* below sticky buttons + progress bar */
+  top: 4rem; /* below sticky buttons + progress bar */
   right: 0.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
   padding: 0.5rem;
   z-index: 50;
   background-color: rgba(0,0,0,0.2);
@@ -335,7 +335,7 @@ html, body {
 /* On mobile */
 @media (max-width: 768px) {
   .vertical-alphabet {
-    top: 7rem; /* lower down to clear progress bar on small screens */
+    top: 9rem; /* lower down to clear progress bar on small screens */
     right: 0.25rem;
     gap: 0.15rem;
     padding: 0.25rem;
