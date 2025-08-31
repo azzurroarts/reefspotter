@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase-browser'
 
 export default function FishPage() {
@@ -19,6 +19,9 @@ export default function FishPage() {
   const [favoriteFish, setFavoriteFish] = useState('')
   const [location, setLocation] = useState('')
   const [bio, setBio] = useState('')
+
+  // Refs for alphabet scrolling
+  const letterRefs = useRef({})
 
   // Fetch species
   useEffect(() => {
@@ -157,6 +160,16 @@ export default function FishPage() {
       .eq('id', user.id)
   }
 
+  // Letters for sidebar
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+
+  const scrollToLetter = (letter) => {
+    const ref = letterRefs.current[letter]
+    if (ref) {
+      ref.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-4">
       <h1 className="sticky-title text-white text-4xl md:text-5xl font-bold lowercase mb-6">reefspotter</h1>
@@ -190,7 +203,6 @@ export default function FishPage() {
 
             {user ? (
               <>
-                {/* Editable profile fields */}
                 <input type="text" placeholder="Nickname" value={nickname} onChange={(e) => setNickname(e.target.value)}
                        className="w-full p-3 mb-3 rounded-full border-2 border-black text-black" />
                 <input type="text" placeholder="Fave Fish" value={favoriteFish} onChange={(e) => setFavoriteFish(e.target.value)}
@@ -228,17 +240,37 @@ export default function FishPage() {
       <div className="species-grid mt-8">
         {filteredSpecies
           .sort((a, b) => a.name.localeCompare(b.name))
-          .map((fish) => {
+          .map((fish, idx, arr) => {
+            const firstLetter = fish.name.charAt(0).toUpperCase()
+            const prevFirstLetter = idx > 0 ? arr[idx - 1].name.charAt(0).toUpperCase() : null
             const isUnlocked = unlocked.includes(fish.id)
+
             return (
-              <div key={fish.id} onClick={() => toggleUnlock(fish.id)}
-                   className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}>
-                <img src={fish.image_url} alt={fish.name} />
-                <h2 className="font-bold text-center">{fish.name}</h2>
-                <p className="text-sm italic text-center">{fish.scientific_name}</p>
+              <div key={fish.id} ref={(el) => {
+                if (firstLetter !== prevFirstLetter) letterRefs.current[firstLetter] = el
+              }}>
+                <div onClick={() => toggleUnlock(fish.id)}
+                     className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}>
+                  <img src={fish.image_url} alt={fish.name} />
+                  <h2 className="font-bold text-center">{fish.name}</h2>
+                  <p className="text-sm italic text-center">{fish.scientific_name}</p>
+                </div>
               </div>
             )
           })}
+      </div>
+
+      {/* Alphabet Sidebar */}
+      <div className="fixed right-0 top-1/4 flex flex-col items-center p-1 bg-black/30 rounded-l-xl z-50">
+        {alphabet.map((letter) => (
+          <button
+            key={letter}
+            onClick={() => scrollToLetter(letter)}
+            className="text-white text-xs md:text-sm hover:text-yellow-400"
+          >
+            {letter}
+          </button>
+        ))}
       </div>
     </div>
   )

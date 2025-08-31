@@ -72,6 +72,7 @@ html, body {
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   margin-top: 4rem;
+  padding-right: 3rem; /* <-- makes space for the alphabet */
 }
 @media(min-width: 768px) {
   .species-grid {
@@ -298,3 +299,29 @@ html, body {
     border-radius: 12px;
   }
 }
+/* --- Vertical alphabet --- */
+.vertical-alphabet {
+  position: fixed;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  z-index: 50; /* keeps it above cards */
+}
+
+.vertical-alphabet button {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.2rem;
+}
+
+.vertical-alphabet button:hover {
+  color: #000;
+  font-weight: bold;
+}
+
