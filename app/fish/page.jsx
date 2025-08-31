@@ -14,16 +14,14 @@ export default function FishPage() {
   const [authPassword, setAuthPassword] = useState('')
   const [authError, setAuthError] = useState('')
 
-  // Editable profile fields
   const [nickname, setNickname] = useState('')
   const [favoriteFish, setFavoriteFish] = useState('')
   const [location, setLocation] = useState('')
   const [bio, setBio] = useState('')
 
-  // Refs for alphabet scrolling
   const letterRefs = useRef({})
+  const [activeLetter, setActiveLetter] = useState<string | null>(null)
 
-  // Fetch species
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
@@ -32,7 +30,6 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
-  // Fetch unlocked species for logged-in user
   useEffect(() => {
     if (!user) return
     const fetchUnlocked = async () => {
@@ -45,7 +42,6 @@ export default function FishPage() {
     fetchUnlocked()
   }, [user])
 
-  // Fetch profile data for editing
   useEffect(() => {
     if (!user) return
     const fetchProfile = async () => {
@@ -100,7 +96,6 @@ export default function FishPage() {
     ? Math.round((unlocked.length / filteredSpecies.length) * 100)
     : 0
 
-  // Login
   const handleLogin = async () => {
     setAuthError('')
     const { data: loginData, error } = await supabase.auth.signInWithPassword({
@@ -123,7 +118,6 @@ export default function FishPage() {
     }
   }
 
-  // Signup
   const handleSignup = async () => {
     setAuthError('')
     const { data, error } = await supabase.auth.signUp({
@@ -139,14 +133,12 @@ export default function FishPage() {
     }
   }
 
-  // Logout
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setUser(null)
     setUnlocked([])
   }
 
-  // Update profile
   const handleProfileUpdate = async () => {
     if (!user) return
     await supabase
@@ -160,13 +152,13 @@ export default function FishPage() {
       .eq('id', user.id)
   }
 
-  // Letters for sidebar
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
   const scrollToLetter = (letter) => {
     const ref = letterRefs.current[letter]
     if (ref) {
       ref.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setActiveLetter(letter)
     }
   }
 
@@ -263,7 +255,11 @@ export default function FishPage() {
       {/* Alphabet Sidebar */}
       <div className="vertical-alphabet">
         {alphabet.map((letter) => (
-          <span key={letter} onClick={() => scrollToLetter(letter)}>
+          <span
+            key={letter}
+            onClick={() => scrollToLetter(letter)}
+            className={activeLetter === letter ? 'active' : ''}
+          >
             {letter}
           </span>
         ))}
