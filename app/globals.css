@@ -350,7 +350,7 @@ html, body {
   left: 0;
   width: 100%;
   height: 11rem; /* desktop height */
-  background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+  background: linear-gradient(to bottom, rgb(0, 0, 0), transparent);
   pointer-events: none; /* allows clicks to go through */
   z-index: 40; /* below sticky buttons (50+) but above cards */
 }
