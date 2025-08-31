@@ -30,7 +30,7 @@ html, body {
   background-color: #7c7f85;
   border: 2px solid #000;
   border-radius: 12px;
-  z-index: 10;
+  z-index: 5;
 }
 .progress-bar {
   height: 100%;
