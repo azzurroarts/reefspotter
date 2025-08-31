@@ -343,3 +343,21 @@ html, body {
     font-size: 1rem;
   }
 }
+/* Top gradient overlay */
+.top-gradient {
+  position: fixed; /* stays at top while scrolling */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5rem; /* desktop height */
+  background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+  pointer-events: none; /* allows clicks to go through */
+  z-index: 40; /* below sticky buttons (50+) but above cards */
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .top-gradient {
+    height: 9rem;
+  }
+}
