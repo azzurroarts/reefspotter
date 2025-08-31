@@ -167,6 +167,26 @@ export default function FishPage() {
     }
   }
 
+  // Update active letter while scrolling
+  useEffect(() => {
+    const handleScroll = () => {
+      let closestLetter = null
+      let closestOffset = Infinity
+      Object.entries(letterRefs.current).forEach(([letter, el]) => {
+        if (!el) return
+        const offset = Math.abs(el.getBoundingClientRect().top - 120) // 120px from top buffer
+        if (offset < closestOffset) {
+          closestOffset = offset
+          closestLetter = letter
+        }
+      })
+      if (closestLetter) setActiveLetter(closestLetter)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [species])
+
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-4">
       <h1 className="sticky-title text-white text-4xl md:text-5xl font-bold lowercase mb-6">reefspotter</h1>

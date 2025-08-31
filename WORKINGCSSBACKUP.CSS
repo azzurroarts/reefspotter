@@ -301,21 +301,23 @@ html, body {
 }
 /* Vertical Alphabet Nav */
 .vertical-alphabet {
-  position: fixed; /* fixed so it doesn't drop under cards */
-  top: 6rem; /* below sticky title + progress bar */
+  position: fixed; /* fix this so it always sits on screen */
+  top: 4rem; /* below sticky buttons + progress bar */
   right: 0.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
   padding: 0.5rem;
   z-index: 50;
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 0.25rem 0 0 0.25rem;
 }
 
 .alphabet-letter {
   font-size: 1.25rem;
   font-weight: bold;
-  color: #9ca3af; /* gray-400 */
+  color: #9ca3af; /* Tailwind gray-400 */
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   user-select: none;
@@ -330,10 +332,10 @@ html, body {
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
 }
 
-/* Mobile adjustments */
+/* On mobile */
 @media (max-width: 768px) {
   .vertical-alphabet {
-    top: 7rem; 
+    top: 9rem; /* lower down to clear progress bar on small screens */
     right: 0.25rem;
     gap: 0.15rem;
     padding: 0.25rem;
