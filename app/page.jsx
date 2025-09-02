@@ -25,6 +25,7 @@ export default function FishPage() {
   const letterRefs = useRef({})
   const [activeLetter, setActiveLetter] = useState(null)
 
+  // Fetch species
   useEffect(() => {
     const fetchSpecies = async () => {
       const { data } = await supabase.from('species').select('*')
@@ -33,6 +34,7 @@ export default function FishPage() {
     fetchSpecies()
   }, [])
 
+  // Fetch unlocked species
   useEffect(() => {
     if (!user) return
     const fetchUnlocked = async () => {
@@ -45,6 +47,7 @@ export default function FishPage() {
     fetchUnlocked()
   }, [user])
 
+  // Fetch profile
   useEffect(() => {
     if (!user) return
     const fetchProfile = async () => {
@@ -95,19 +98,17 @@ export default function FishPage() {
       if (!fish.location) return true
       return fish.location === filter
     })
-    .filter((fish) => {
-      const term = searchTerm.toLowerCase()
-      return (
-        fish.name.toLowerCase().includes(term) ||
-        fish.scientific_name?.toLowerCase().includes(term) ||
-        fish.description?.toLowerCase().includes(term)
-      )
-    })
+    .filter((fish) =>
+      fish.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (fish.scientific_name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (fish.description?.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
 
   const progressPercentage = filteredSpecies.length
     ? Math.round((unlocked.length / filteredSpecies.length) * 100)
     : 0
 
+  // Auth functions
   const handleLogin = async () => {
     setAuthError('')
     const { data: loginData, error } = await supabase.auth.signInWithPassword({
@@ -155,7 +156,12 @@ export default function FishPage() {
     if (!user) return
     await supabase
       .from('users')
-      .update({ nickname, favorite_fish: favoriteFish, location, bio })
+      .update({
+        nickname,
+        favorite_fish: favoriteFish,
+        location,
+        bio
+      })
       .eq('id', user.id)
   }
 
@@ -190,7 +196,9 @@ export default function FishPage() {
     const regex = new RegExp(`(${query})`, 'gi')
     return text.split(regex).map((part, i) =>
       regex.test(part) ? (
-        <mark key={i} className="bg-yellow-300 text-black rounded px-0.5">{part}</mark>
+        <mark key={i} className="bg-yellow-300 text-black rounded px-0.5">
+          {part}
+        </mark>
       ) : (
         part
       )
@@ -199,29 +207,18 @@ export default function FishPage() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-4">
-      <h1 className="sticky-title text-white text-4xl md:text-5xl font-bold lowercase mb-6">reefspotter</h1>
+      <div className="top-gradient"></div>
+      <h1 className="sticky-title text-white text-4xl md:text-5xl font-bold lowercase mb-6">
+        reefspotter
+      </h1>
 
-      {/* Search bar */}
-      <div className="absolute top-4 right-4 w-1/5 min-w-[200px]">
-        <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-          <input
-            type="text"
-            placeholder="Search species..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-500 bg-black/40 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-      </div>
-
-      {/* Sticky buttons */}
-      <div className="sticky-button-container">
+      {/* Sticky buttons + search */}
+      <div className="sticky-button-container flex flex-col items-end gap-2">
         <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="sticky-button">👤</button>
         <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="sticky-button">🐟</button>
 
         {isFilterOpen && (
-          <div className="filter-bubble">
+          <div className="filter-bubble mt-2">
             <select value={filter} onChange={(e) => setFilter(e.target.value)}>
               <option value="All Species">All Species</option>
               <option value="GBR">Great Barrier Reef (GBR)</option>
@@ -229,13 +226,27 @@ export default function FishPage() {
             </select>
           </div>
         )}
+
+        {/* Search bar */}
+        <div className="mt-4 w-full md:w-1/5">
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl">🔍</span>
+            <input
+              type="text"
+              placeholder="Search species..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full h-16 pl-12 pr-4 rounded-full border-2 border-white bg-black text-white text-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Progress bar */}
       <div className="progress-container mt-4 relative">
         <div
           className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500"
-          style={{ width: `${progressPercentage}%` }}
+          style={{ width: `${progressPercentage}%`, height: '12px', borderRadius: '9999px' }}
         />
         <div className="absolute top-0 right-2 text-black font-bold">{progressPercentage}%</div>
       </div>
@@ -280,21 +291,23 @@ export default function FishPage() {
 
       {/* Species Cards */}
       <div className="species-grid mt-8">
-        {filteredSpecies.sort((a, b) => a.name.localeCompare(b.name)).map((fish, idx, arr) => {
-          const firstLetter = fish.name.charAt(0).toUpperCase()
-          const prevFirstLetter = idx > 0 ? arr[idx - 1].name.charAt(0).toUpperCase() : null
-          const isUnlocked = unlocked.includes(fish.id)
-          return (
-            <div key={fish.id} ref={(el) => { if (firstLetter !== prevFirstLetter) letterRefs.current[firstLetter] = el }}>
-              <div onClick={() => toggleUnlock(fish.id)} className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}>
-                <img src={fish.image_url} alt={fish.name} />
-                <h2 className="font-bold text-center">{highlightMatch(fish.name, searchTerm)}</h2>
-                <p className="text-sm italic text-center">{highlightMatch(fish.scientific_name || '', searchTerm)}</p>
-                <p className="text-xs text-center">{highlightMatch(fish.description || '', searchTerm)}</p>
+        {filteredSpecies
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((fish, idx, arr) => {
+            const firstLetter = fish.name.charAt(0).toUpperCase()
+            const prevFirstLetter = idx > 0 ? arr[idx - 1].name.charAt(0).toUpperCase() : null
+            const isUnlocked = unlocked.includes(fish.id)
+            return (
+              <div key={fish.id} ref={(el) => { if (firstLetter !== prevFirstLetter) letterRefs.current[firstLetter] = el }}>
+                <div onClick={() => toggleUnlock(fish.id)} className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}>
+                  <img src={fish.image_url} alt={fish.name} />
+                  <h2 className="font-bold text-center">{highlightMatch(fish.name, searchTerm)}</h2>
+                  <p className="text-sm italic text-center">{fish.scientific_name}</p>
+                  <p className="text-xs text-center mt-1">{fish.description}</p>
+                </div>
               </div>
-            </div>
-          )
-        })}
+            )
+          })}
       </div>
 
       {/* Alphabet Sidebar */}
