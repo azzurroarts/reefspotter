@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase-browser'
+import { Search } from 'lucide-react'
 
 export default function FishPage() {
   const [species, setSpecies] = useState([])
   const [unlocked, setUnlocked] = useState([])
   const [filter, setFilter] = useState('All Species')
+  const [searchTerm, setSearchTerm] = useState('')
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [user, setUser] = useState(null)
@@ -92,11 +94,15 @@ export default function FishPage() {
     }
   }
 
-  const filteredSpecies = species.filter((fish) => {
-    if (filter === 'All Species') return true
-    if (!fish.location) return true
-    return fish.location === filter
-  })
+  const filteredSpecies = species
+    .filter((fish) => {
+      if (filter === 'All Species') return true
+      if (!fish.location) return true
+      return fish.location === filter
+    })
+    .filter((fish) =>
+      fish.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
 
   const progressPercentage = filteredSpecies.length
     ? Math.round((unlocked.length / filteredSpecies.length) * 100)
@@ -174,7 +180,7 @@ export default function FishPage() {
       let closestOffset = Infinity
       Object.entries(letterRefs.current).forEach(([letter, el]) => {
         if (!el) return
-        const offset = Math.abs(el.getBoundingClientRect().top - 120) // 120px from top buffer
+        const offset = Math.abs(el.getBoundingClientRect().top - 120)
         if (offset < closestOffset) {
           closestOffset = offset
           closestLetter = letter
@@ -187,11 +193,42 @@ export default function FishPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [species])
 
+  // Highlight search matches
+  const highlightMatch = (text, query) => {
+    if (!query) return text
+    const regex = new RegExp(`(${query})`, 'gi')
+    return text.split(regex).map((part, i) =>
+      regex.test(part) ? (
+        <mark key={i} className="bg-yellow-300 text-black rounded px-0.5">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    )
+  }
+
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-blue-500 via-cyan-400 to-white p-4">
       {/* Top gradient */}
-  <div className="top-gradient"></div>
-      <h1 className="sticky-title text-white text-4xl md:text-5xl font-bold lowercase mb-6">reefspotter</h1>
+      <div className="top-gradient"></div>
+      <h1 className="sticky-title text-white text-4xl md:text-5xl font-bold lowercase mb-6">
+        reefspotter
+      </h1>
+
+      {/* Search bar */}
+      <div className="sticky top-[5rem] z-30 flex justify-center px-4 mb-4">
+        <div className="relative w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Search species..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-4 py-2 rounded-full border border-white bg-transparent text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white w-full"
+          />
+          <Search className="absolute left-3 top-2.5 text-gray-300 w-5 h-5" />
+        </div>
+      </div>
 
       {/* Sticky buttons */}
       <div className="sticky-button-container">
@@ -211,8 +248,10 @@ export default function FishPage() {
 
       {/* Progress bar */}
       <div className="progress-container mt-4 relative">
-        <div className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500"
-             style={{ width: `${progressPercentage}%` }} />
+        <div
+          className="progress-bar bg-gradient-to-r from-pink-500 via-yellow-500 to-blue-500"
+          style={{ width: `${progressPercentage}%` }}
+        />
         <div className="absolute top-0 right-2 text-black font-bold">{progressPercentage}%</div>
       </div>
 
@@ -266,7 +305,7 @@ export default function FishPage() {
               <div key={fish.id} ref={(el) => { if (firstLetter !== prevFirstLetter) letterRefs.current[firstLetter] = el }}>
                 <div onClick={() => toggleUnlock(fish.id)} className={`species-card ${isUnlocked ? 'unlocked' : 'locked'}`}>
                   <img src={fish.image_url} alt={fish.name} />
-                  <h2 className="font-bold text-center">{fish.name}</h2>
+                  <h2 className="font-bold text-center">{highlightMatch(fish.name, searchTerm)}</h2>
                   <p className="text-sm italic text-center">{fish.scientific_name}</p>
                 </div>
               </div>

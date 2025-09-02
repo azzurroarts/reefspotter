@@ -361,3 +361,16 @@ html, body {
     height: 15rem;
   }
 }
+/* Search input placeholder */
+input::placeholder {
+  color: #d1d5db;
+  opacity: 1;
+}
+
+/* Highlight for search matches */
+mark {
+  background-color: #fde047; /* yellow-300 */
+  color: black;
+  border-radius: 0.25rem;
+  padding: 0 0.1rem;
+}
